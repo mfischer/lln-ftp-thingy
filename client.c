@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "constants.h"
+#include "utils.h"
 
 int main(int argc, char** argv) 
 {
@@ -15,10 +16,7 @@ int main(int argc, char** argv)
 	struct sockaddr_in servaddr;
 
 	if (argc !=2)
-	{
-		printf ("Not enough arguments!\n");
-		exit (EXIT_FAILURE);
-	}
+		exit_error ("Not enough arguments!");
 
 	/* Set up the stuff for the listenfd */
 	memset ((char *) &servaddr, 0, sizeof(servaddr));
@@ -28,17 +26,11 @@ int main(int argc, char** argv)
 
 	/* Open a TCP socket (an Internet stream socket)*/
 	if ( (connfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-	{
-		perror ("socket error initalization");
-		exit (EXIT_FAILURE);
-	}
+		exit_error ("Socket initialization error");
 
 	/* We try to connect to port 7000 on the server */
 	if (connect (connfd , (struct sockaddr *) &servaddr , sizeof ( servaddr )) < 0)
-	{
-		perror ("connect error");
-		exit (EXIT_FAILURE);
-	}
+		exit_error ("connect error");
 	/*client code */
 
 

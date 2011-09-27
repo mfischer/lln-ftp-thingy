@@ -11,10 +11,8 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-
-const uint16_t CMD_PORT  = 7000;
-const uint16_t DATA_PORT = 7001;
-const int      BACKLOG   = 100;
+#include "constants.h"
+#include "utils.h"
 
 void
 print_header (void)
