@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
+#include <errno.h>
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -9,9 +11,10 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
+
 const uint16_t CMD_PORT  = 7000;
 const uint16_t DATA_PORT = 7001;
-const int      BACKLOG   = 5;
+const int      BACKLOG   = 100;
 
 void
 print_header (void)
@@ -27,82 +30,67 @@ exit_error (const char *err_msg)
 }
 
 void
-handle_sig_chld (int signo)
-{
-	return;
-}
-
-void
 handle_client_connection (int* connfd)
 {
-	printf ("Client connected!\n");
 	return;
 }
 
 int
 main (int argc, char** argv)
 {
+	/* Shut up the compiler ... */
 	(void) argc;
 	(void) argv;
 	int listenfd, connfd;
-
-	/* Set up the stuff for the listenfd */
-	struct sockaddr_in servaddr, clientaddr;
-	memset(&servaddr, 0, sizeof (struct sockaddr_in));
-	servaddr.sin_family = AF_INET;
-	servaddr.sin_addr.s_addr = htonl (INADDR_ANY);
-	servaddr.sin_port = htons (7000);
+	struct sockaddr_in servaddr;
+	struct sockaddr_in clientaddr;
 
 	listenfd = socket (AF_INET, SOCK_STREAM, 0);
 
-	print_header ();
-	
+	/* Set up the stuff for the listenfd */
+	memset (&servaddr, 0, sizeof (struct sockaddr_in));
+	servaddr.sin_family = AF_INET;
+	servaddr.sin_addr.s_addr = htonl (INADDR_ANY);
+	servaddr.sin_port = htons (CMD_PORT);
+
 	/* We try to bind to port 7000 on any address */
-	int info;
-	if ( ((info = bind (listenfd, (const struct sockaddr*) &servaddr, sizeof (servaddr)))))
-	{
-		perror ("Error with bind: ");
-	}
+	int info = 0;
+	info = bind (listenfd, (const struct sockaddr*) &servaddr, sizeof (servaddr));
+	if (info < 0)
+		exit_error("Something went wrong with bind");
 
 	/* We mark the socket as a passive, i.e. listening socket */
-	if ( ((info = listen (listenfd, BACKLOG)) < 0) )
-	{
-		perror ("Error with listen: ");
-	}
+	info = listen (listenfd, BACKLOG);
+	if (info < 0)
+		exit_error("Something went wrong with listen");
 
-	/* Next we set up the signal handler for SIGCHLD */
-	/*struct sigaction sigact;*/
-	/*sigact.sa_handler = handle_sig_chld;*/
-	/*(void) sigact;*/
+	/* FIXME: Apparently this is NOT portable */
+	signal (SIGCHLD, SIG_IGN);
 
-	/* FIXME complete this stuff */
 
 	/* We accept () to obtain a connected socket */
 	socklen_t clientlen = (socklen_t) sizeof (clientaddr);
 	pid_t pid;
 
-	connfd = accept (listenfd, (struct sockaddr*) &clientaddr, &clientlen);
-	/*while (1)*/
-	/*{*/
+	/* Our mainloop goes on forever ... */
+	while (1)
+	{
+		connfd = accept (listenfd, (struct sockaddr*) &clientaddr, &clientlen);
+		/* We're in the child */
 
-		/*[> We're in the child <]*/
-		/*if ( (pid = fork ()) == 0 )*/
-		/*{*/
-			/*printf ("Started child with pid: %u!\n", pid);*/
-			/*close (listenfd);*/
-			/*handle_client_connection (&connfd);*/
-			/*close (connfd);*/
-			/*exit (EXIT_SUCCESS);*/
-		/*}*/
+		if ( (pid = fork ()) == 0 )
+				{
+					printf ("Started child with pid: %u!\n", getpid());
+					close (listenfd);
+					handle_client_connection (&connfd);
+					close (connfd);
+					printf ("Terminating child with pid: %u!\n", getpid());
+					exit (EXIT_SUCCESS);
+				}
+		/* Parent code: FIXME do something here ;-) */
+		close (connfd);
+	}
 
-		/*[> Parent code <]*/
-		/*char client_str[INET_ADDRSTRLEN];*/
-		/*socklen_t cliaddr_len = sizeof (struct in_addr);*/
-		/*inet_ntop (AF_INET, (const void*) &clientaddr.sin_addr, client_str, cliaddr_len);*/
-		/*close (connfd);*/
-	/*}*/
-	(void) connfd;
-	(void) pid;
-	
+	close (listenfd);
 	return EXIT_SUCCESS;
 }
