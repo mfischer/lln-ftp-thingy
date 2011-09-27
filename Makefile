@@ -1,12 +1,9 @@
 CC=gcc
-CFLAGS=-W -Wall -ansi -pedantic
+CFLAGS=-Wall -Werror -std=c99 -D_POSIX_C_SOURCE
 LDFLAGS=
 EXEC=client server
 
 all: $(EXEC)
-
-client: client.o
-	$(CC) -o $@ $^ $(LDFLAGS)
 
 client.o: client.c
 	$(CC) -o $@ -c $< $(CFLAGS)
