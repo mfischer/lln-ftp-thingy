@@ -16,8 +16,6 @@ server.o: server.c
 
 clean:
 	rm *.o
-	rm server client
+	rm $(EXEC)
 
 mrproper: clean
-	rm $(EXEC)
-	
