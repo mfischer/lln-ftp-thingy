@@ -8,9 +8,9 @@
 #include <string.h>
 
 #define SERVER_PORT  7000
-#define SERVER_ADDR "130.104.230.234"
+#define SERVER_ADDR "127.0.0.1"
 
-int main(argc, argv) int    argc; char   *argv[ ];
+int main(int argc, char** argv) 
 {
     int sd1;
     struct sockaddr_in server;
@@ -24,16 +24,18 @@ int main(argc, argv) int    argc; char   *argv[ ];
 
     /* Open a TCP socket (an Internet stream socket)*/
     if ( (sd1 = socket(PF_INET, SERVER_PORT, 0)) < 0){
-        perror("socket error in telnet");
+        perror("socket error initalization");
         exit(-1);
     }
 
     /* Connect to the server */
     if (connect(sd1 , (struct sockaddr *) &server , sizeof ( server )) < 0){
-        perror("connect error in telnet");
+        perror("connect error");
         exit(-1);
     }
     /*client code */
+    
+		    
     return 0;
 }
 
