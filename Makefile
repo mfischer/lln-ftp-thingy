@@ -5,9 +5,6 @@ EXEC=client server
 
 all: $(EXEC)
 
-client: client.o
-	$(CC) -o $@ $^ $(LDFLAGS)
-
 client.o: client.c
 	$(CC) -o $@ -c $< $(CFLAGS)
 
