@@ -7,37 +7,40 @@
 #include <arpa/inet.h>
 #include <string.h>
 
-#define SERVER_PORT  7000
-#define SERVER_ADDR "127.0.0.1"
+#include "constants.h"
 
 int main(int argc, char** argv) 
 {
-    int sd1;
-    struct sockaddr_in server;
+	int connfd;
+	struct sockaddr_in servaddr;
 
-    /* fill in the structure "m2" with the address of the
-     * server that we want to connect with */
-    memset((char *) &server, 0, sizeof(server));
-    server.sin_family     = AF_INET;
-    server.sin_addr.s_addr = inet_addr(SERVER_ADDR);
-    server.sin_port       = htons(SERVER_PORT);
+	if (argc !=2)
+	{
+		printf ("Not enough arguments!\n");
+		exit (EXIT_FAILURE);
+	}
 
-    /* Open a TCP socket (an Internet stream socket)*/
-    if ( (sd1 = socket(PF_INET, SERVER_PORT, 0)) < 0){
-        perror("socket error initalization");
-        exit(-1);
-    }
+	/* Set up the stuff for the listenfd */
+	memset ((char *) &servaddr, 0, sizeof(servaddr));
+	servaddr.sin_family      = AF_INET;
+	servaddr.sin_addr.s_addr = inet_addr(argv[1]);
+	servaddr.sin_port        = htons(CMD_PORT);
 
-    /* Connect to the server */
-    if (connect(sd1 , (struct sockaddr *) &server , sizeof ( server )) < 0){
-        perror("connect error");
-        exit(-1);
-    }
-    /*client code */
-    
-		    
-    return 0;
+	/* Open a TCP socket (an Internet stream socket)*/
+	if ( (connfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+	{
+		perror ("socket error initalization");
+		exit (EXIT_FAILURE);
+	}
+
+	/* We try to connect to port 7000 on the server */
+	if (connect (connfd , (struct sockaddr *) &servaddr , sizeof ( servaddr )) < 0)
+	{
+		perror ("connect error");
+		exit (EXIT_FAILURE);
+	}
+	/*client code */
+
+
+	return 0;
 }
-
-	
-
