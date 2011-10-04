@@ -1,6 +1,6 @@
 CC=gcc
-CFLAGS=-Wall -Werror -std=c99 -D_POSIX_C_SOURCE
-LDFLAGS=
+CFLAGS=-Wall -Werror -std=c99 -D_POSIX_C_SOURCE -g
+LDFLAGS=-lreadline
 EXEC=client server
 
 .PHONY: all
@@ -18,7 +18,7 @@ client.o: client.c utils.h
 server.o: server.c utils.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-utils.o: utils.c utils.h
+utils.o: utils.c utils.h constants.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 .PHONY: clean
