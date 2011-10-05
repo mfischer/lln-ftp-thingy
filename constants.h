@@ -26,6 +26,9 @@
 
 #define FTP_COMMAND_NOT_IMPLEMENTED 202
 
+#define FTP_FINISHED_CLOSING 226
+#define FTP_FINISHED_CLOSING_STR "We're done, closing data connection."
+
 #define FTP_NEED_LOGIN 332
 #define FTP_NEED_LOGIN_STR "You need to login before proceeding"
 
@@ -41,6 +44,9 @@
 #define FTP_REQUESTED_ACTION_FINISHED 250
 #define FTP_REQUESTED_ACTION_FINISHED_STR "Requested file action okay, completed."
 
+#define FTP_ACCESS_DENIED 550
+#define FTP_ACCESS_DENIED_STR "Access denied -> FIXME"
+
 #define MAXLINE   255
 
 #define FTP_CMD_USER 0x01
@@ -49,6 +55,10 @@
 #define FTP_CMD_PASV 0x04
 #define FTP_CMD_SYST 0x05
 #define FTP_CMD_LIST 0x06
+#define FTP_CMD_PWD  0x07
+#define FTP_CMD_QUIT 0x08
+#define FTP_CMD_RETR 0x09
+#define FTP_CMD_STOR 0x10
 #define FTP_CMD_PARSE_ERROR 0xff;
 
 
@@ -62,6 +72,8 @@
 
 #define MAXUSER 255
 #define MAXPASS 255
+
+#define MAXPATH 255
 
 
 
@@ -80,11 +92,15 @@ union cmd
 		unsigned int port;
 		char addr[MAXIPLEN];
   } cmd_port;
+	struct cmd_stor
+	{
+		char path[MAXPATH];
+	} cmd_path;
 };
 
 typedef struct cmd_user cmd_user_t;
 typedef struct cmd_pass cmd_pass_t;
 typedef struct cmd_port cmd_port_t;
-
+typedef struct cmd_stor cmd_stor_t;
 
 #endif /* CODES_H */
