@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -Werror -std=c99 -D_POSIX_C_SOURCE -g
-LDFLAGS=-lreadline
+LDFLAGS=-ledit
 EXEC=client server
 
 .PHONY: all

@@ -58,7 +58,8 @@
 #define FTP_CMD_PWD  0x07
 #define FTP_CMD_QUIT 0x08
 #define FTP_CMD_RETR 0x09
-#define FTP_CMD_STOR 0x10
+#define FTP_CMD_STOR 0x0A
+#define FTP_CMD_CWD  0x0B
 #define FTP_CMD_PARSE_ERROR 0xff;
 
 
@@ -95,12 +96,23 @@ union cmd
 	struct cmd_stor
 	{
 		char path[MAXPATH];
-	} cmd_path;
+	} cmd_stor;
+	struct cmd_retr
+	{
+		char path[MAXPATH];
+	} cmd_retr;
+	struct cmd_cwd
+	{
+		char path[MAXPATH];
+	} cmd_cwd;
+
 };
 
 typedef struct cmd_user cmd_user_t;
 typedef struct cmd_pass cmd_pass_t;
 typedef struct cmd_port cmd_port_t;
 typedef struct cmd_stor cmd_stor_t;
+typedef struct cmd_retr cmd_retr_t;
+typedef struct cmd_cwd cmd_cwd_t;
 
 #endif /* CODES_H */

@@ -118,7 +118,19 @@ line_to_cmd (const char* line, size_t readcnt, void* cmd)
 		sscanf(line, "%s %s", cur_cmd, &tmp->path[0]);
 		return FTP_CMD_STOR;
 	}
+	else if (!strncmp (cur_cmd, "RETR", MAXCMD))
+	{
+		cmd_retr_t* tmp = (cmd_retr_t*) cmd;
+		sscanf(line, "%s %s", cur_cmd, &tmp->path[0]);
+		return FTP_CMD_RETR;
+	}
 
+	else if (!strncmp (cur_cmd, "CWD", MAXCMD))
+	{
+		cmd_cwd_t* tmp = (cmd_cwd_t*) cmd;
+		sscanf(line, "%s %s", cur_cmd, &tmp->path[0]);
+		return FTP_CMD_CWD;
+	}
 	else
 	{
 		printf ("Shit we don't know \"%s\" yet\n", cur_cmd);

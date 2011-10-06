@@ -85,6 +85,10 @@ handle_client_connection (int connfd)
 				pwd_handler (datafd, connfd);
 				break;
 
+			case FTP_CMD_CWD:
+				cwd_handler (datafd, cmdptr, connfd);
+				break;
+
 			case FTP_CMD_QUIT:
 				quit_handler (datafd, connfd);
 				break;
