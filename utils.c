@@ -28,9 +28,9 @@ size_t our_readline (char* readbuf, int connfd)
 	while (readcnt <= MAXLINE)
 	{
 		read (connfd, (void*) readbuf+readcnt, sizeof(char));
-		if (readbuf[readcnt] == '\n')
+		if (readbuf[readcnt ] == '\n')
 		{
-			readbuf[readcnt] = '\0';
+			readbuf[readcnt ] = '\0';
 			break;
 		}
 		else

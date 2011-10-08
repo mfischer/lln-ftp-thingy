@@ -149,20 +149,18 @@ retr_handler (int datafd, void* cmdptr, int connfd)
 
 }
 
-void
-cwd_handler (int datafd, void* cmdptr, int connfd)
+void cwd_handler (int datafd, void* cmdptr, int connfd)
 {
 	printf ("[DEBUG] CWD handler\n");
 
 	cmd_cwd_t* tmp = (cmd_cwd_t *) cmdptr;
 	sock_print (connfd, FTP_CMD_OK, FTP_CMD_OK_STR);
 	/* FIXME Here we have to check WHERE we're changing to! */
-  chdir (tmp->path);
+  	chdir (tmp->path);
 }
 
 
-void
-not_implemented_handler (int connfd)
+void not_implemented_handler (int connfd)
 {
 	printf ("[DEBUG]: NOT_IMPLEMENTED_HANDLER handler\n");
 	sock_print (connfd, FTP_COMMAND_NOT_IMPLEMENTED, "");

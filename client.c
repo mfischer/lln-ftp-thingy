@@ -49,80 +49,79 @@ int isItCommandOnServer(char * command) {
 }
 
 /* Function which analyzes the command */
-void analyseCommandLine(char* readbuf) {
-	printf("\n# ");		
-	scanf("%s", readbuf); // Read command line in the shell 
+void analyseCommandLine() {
+	char* readbuf = calloc(MAXLINE + 1, sizeof(char));	
 	char* command;	
 	char separator = ' ';
-	command = strtok(readbuf, &separator); // Take the first argument
-	while(1) {		
-		if(isInCommandClient(command) != -1) {
+	
+	while(1) {
+		printf("# ");		
+		readbuf = gets(readbuf); // Read command line in the shell 		
+		command = strtok(readbuf, &separator); // Take the first argument						
+		
+		if(isInCommandClient(command) != -1) { // Local commands
 			// Command found, we execute it
-			puts("Sa mere");
-			char * path = malloc(sizeof(char)*256);			
+			// We remove the first character of the command
+			char * line = calloc(256, sizeof(char));			
 			char * arg;			
-			size_t i = 1;
+			size_t i = 1;			
 			while(i < strlen(command)) {
-				path[i - 1] = command[i];
+				line[i - 1] = command[i];
 				i++;
 			}
-			
+			// We copy the rest of the command line
 			while(NULL != (arg = strtok(NULL, &separator))) {
-				path = strcat(path, " ");					
-				path = strcat(path, arg);							
+				line = strcat(line, " ");					
+				line = strcat(line, arg);							
 			}		
-			system(path);
-			free(path);
-	
+			system(line); // We execute the line
+			free(line); 
 		} else if(isItCommandOnServer(command) != -1) {
+			// Send to the server the command line
 			
 		} else if(!strcmp(command, "get")) {
 			// get a file
 		} else if(!strcmp(command, "put")) {
 			// put a file
 		} else if(!strcmp(command, "bye")) {
-			// Close the connection			
-			//close();		
+			break;
 		} else {
 			printf("Invalid used of the command: %s" , command);
 		}
-		printf("\n# ");				
-		scanf("%s", readbuf); // Read command line in the shell 
+		// Re-Initialization 		
+		free(readbuf);		
+		readbuf = calloc(MAXLINE + 1, sizeof(char));	
 	}
-	printf("\nCommande Entrée : %s", command);
+	free(readbuf);		
 }
 
 int main(int argc, char** argv) 
 {
-	/*int connfd;
+	int connfd;
 	struct sockaddr_in servaddr;
 
 	if (argc !=2)
 		exit_error ("Not enough arguments!");
 
-	 Set up the stuff for the listenfd 
+	/* Set up the stuff for the listenfd */
 	memset ((char *) &servaddr, 0, sizeof(servaddr));
 	servaddr.sin_family      = AF_INET;
 	servaddr.sin_addr.s_addr = inet_addr(argv[1]);
 	servaddr.sin_port        = htons(CMD_PORT);
 
-	Open a TCP socket (an Internet stream socket)
+	/* Open a TCP socket (an Internet stream socket) */
 	if ( (connfd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-		exit_error ("Socket initialization error");*/
+		exit_error ("Socket initialization error");
 
-	/* We try to connect to port 7000 on the server 
+	/* We try to connect to port 7000 on the server */
 	if (connect (connfd , (struct sockaddr *) &servaddr , sizeof ( servaddr )) < 0)
-		exit_error ("connect error");*/
+		exit_error ("connect error");
 	/*client code */
 	
-	/* Creation of new process to read answer	*/
-		
-	
-	
-	char readbuf[MAXLINE + 1];//, writebuf[MAXLINE + 1];   
+	//, writebuf[MAXLINE + 1];   
 	/* Father Process uses to send data */
-		 analyseCommandLine(readbuf);
-    
+	analyseCommandLine();
+ 		   
 	
 
 	return 0;
