@@ -11,6 +11,7 @@
 
 #include "constants.h"
 #include "utils.h"
+#include "handlers.h"
 
 #define NB_CMDSERVER 5
 #define NB_CMDCLIENT 3
@@ -23,13 +24,6 @@ static char commandClient [NB_CMDCLIENT][CMD_SIZE] = {
 	"lls" 
 };
 
-/* List of simple commands on the server */
-static char commandOnServer[NB_CMDSERVER][CMD_SIZE] = {
-	"pwd",
-	"cd",
-	"ls"
-};
-
 /* To check if it's a command which is executed on the client */
 int isInCommandClient(char * command) {
 	unsigned i = 0;
@@ -39,27 +33,19 @@ int isInCommandClient(char * command) {
 	return -1;
 }
 
-/* To check if it's a simple command which is executed on the server */
-int isItCommandOnServer(char * command) {
-	unsigned i = 0;
-	for( ; i < NB_CMDSERVER; i++) {
-		if(!strcmp(command, commandOnServer[i])) return 0;
-	}
-	return -1;
-}
-
 /* Function which analyzes the command */
-void analyseCommandLine() {
+void analyseCommandLine(int connfd) {
 	char* readbuf = calloc(MAXLINE + 1, sizeof(char));	
 	char* command;	
 	char separator = ' ';
-	
+	//int datafd;
+
 	while(1) {
 		printf("# ");		
 		readbuf = gets(readbuf); // Read command line in the shell 		
 		command = strtok(readbuf, &separator); // Take the first argument						
-		
-		if(isInCommandClient(command) != -1) { // Local commands
+		/* Local commands */
+		if(isInCommandClient(command) != -1) {
 			// Command found, we execute it
 			// We remove the first character of the command
 			char * line = calloc(256, sizeof(char));			
@@ -76,15 +62,22 @@ void analyseCommandLine() {
 			}		
 			system(line); // We execute the line
 			free(line); 
-		} else if(isItCommandOnServer(command) != -1) {
-			// Send to the server the command line
-			
+		} 
+		else if(!strcmp(command, "pwd")) {
+		//	pwd_handler (datafd, connfd);
+		} else if(!strcmp(command, "cd")) {
+		//	cwd_handler (datafd, cmdptr, connfd);
+		} else if(!strcmp(command, "ls")) {
+			//list_handler (datafd, connfd);
+		} else if(!strcmp(command, "bye")) {
+			//quit_handler (datafd, connfd);			
+			break;
 		} else if(!strcmp(command, "get")) {
 			// get a file
+			//retr_handler (datafd, cmdptr, connfd);
 		} else if(!strcmp(command, "put")) {
 			// put a file
-		} else if(!strcmp(command, "bye")) {
-			break;
+			//				stor_handler (datafd, cmdptr, connfd);
 		} else {
 			printf("Invalid used of the command: %s" , command);
 		}
@@ -101,8 +94,8 @@ int main(int argc, char** argv)
 	struct sockaddr_in servaddr;
 
 	if (argc !=2)
-		exit_error ("Not enough arguments!");
-
+		exit_error ("Bad Arguments! \nUsage : ./client <IPServerAdress>");
+	
 	/* Set up the stuff for the listenfd */
 	memset ((char *) &servaddr, 0, sizeof(servaddr));
 	servaddr.sin_family      = AF_INET;
@@ -116,13 +109,9 @@ int main(int argc, char** argv)
 	/* We try to connect to port 7000 on the server */
 	if (connect (connfd , (struct sockaddr *) &servaddr , sizeof ( servaddr )) < 0)
 		exit_error ("connect error");
+	
 	/*client code */
-	
-	//, writebuf[MAXLINE + 1];   
-	/* Father Process uses to send data */
-	analyseCommandLine();
+	analyseCommandLine(connfd);
  		   
-	
-
 	return 0;
 }

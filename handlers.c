@@ -72,7 +72,7 @@ pwd_handler (int datafd, int connfd)
 {
 	printf ("[DEBUG] PWD handler\n");
 	char tmp[MAXLINE];
-  getcwd (tmp, (size_t) MAXLINE);	
+    getcwd (tmp, (size_t) MAXLINE);	
 	sock_print (connfd, FTP_CMD_OK, tmp);
 	close (datafd);
 }
