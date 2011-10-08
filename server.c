@@ -38,7 +38,7 @@ handle_client_connection (int connfd)
 	/* We wait for a username */
 	while (1)
 	{
-  	len	= our_readline (readbuf, connfd);
+  		len	= our_readline (readbuf, connfd);
 		current_cmd = line_to_cmd (readbuf, len, cmdptr);
 		if (FTP_CMD_USER == current_cmd)
 		{
@@ -122,22 +122,22 @@ main (int argc, char** argv)
 	struct sockaddr_in servaddr;
 	struct sockaddr_in clientaddr;
 
-	listenfd = socket (AF_INET, SOCK_STREAM, 0);
+	listenfd = socket (AF_INET, SOCK_STREAM, 0); // Création d'un point de communication
 
 	/* Set up the stuff for the listenfd */
-	memset (&servaddr, 0, sizeof (struct sockaddr_in));
+	memset (&servaddr, 0, sizeof (struct sockaddr_in)); // Informations sur le serveur
 	servaddr.sin_family = AF_INET;
 	servaddr.sin_addr.s_addr = htonl (INADDR_ANY);
 	servaddr.sin_port = htons (CMD_PORT);
 
 	/* We try to bind to port 7000 on any address */
 	int info = 0;
-	info = bind (listenfd, (const struct sockaddr*) &servaddr, sizeof (servaddr));
+	info = bind (listenfd, (const struct sockaddr*) &servaddr, sizeof (servaddr)); // 2me étape: chaque processus attache son socket à un port 
 	if (info < 0)
 		exit_error("Something went wrong with bind");
 
 	/* We mark the socket as a passive, i.e. listening socket */
-	info = listen (listenfd, BACKLOG);
+	info = listen (listenfd, BACKLOG); 
 	if (info < 0)
 		exit_error("Something went wrong with listen");
 
@@ -158,7 +158,7 @@ main (int argc, char** argv)
 		if ( (pid = fork ()) == 0 )
 				{
 					printf ("Started child with pid: %u!\n", getpid());
-					close (listenfd);
+					close (listenfd); // Close descriptor of the father
 					handle_client_connection (connfd);
 					close (connfd);
 					printf ("Terminating child with pid: %u!\n", getpid());

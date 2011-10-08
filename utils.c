@@ -21,8 +21,7 @@ get_client_port (const unsigned int p1,
 	return p1*256+p2;
 }
 
-size_t
-our_readline (char* readbuf, int connfd)
+size_t our_readline (char* readbuf, int connfd)
 {
 	size_t readcnt = 0;
 	memset (readbuf, 0, sizeof (readbuf));
@@ -40,8 +39,8 @@ our_readline (char* readbuf, int connfd)
 	return readcnt;
 }
 
-void
-sock_print (int fd, uint16_t code, char* str)
+/* */
+void sock_print (int fd, uint16_t code, char* str)
 {
 	char buffer[MAXLINE + 1];
 	memset (buffer, 0, sizeof (buffer));

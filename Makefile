@@ -1,6 +1,7 @@
 CC=gcc
 CFLAGS=-Wall -Werror -std=c99 -D_POSIX_C_SOURCE -g
-LDFLAGS=-ledit
+LDFLAGS=
+#-ledit
 EXEC=client server
 
 .PHONY: all
@@ -27,6 +28,7 @@ handlers.o: handlers.c utils.h constants.h
 
 .PHONY: clean
 clean:
+	clear	
 	rm *.o
 	rm $(EXEC)
 
