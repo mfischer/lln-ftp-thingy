@@ -33,44 +33,99 @@ int isInCommandClient(char * command) {
 	return -1;
 }
 
+	int
+init_data_connection (int connfd, unsigned int port)
+{
+
+	struct sockaddr_in myaddr;
+	/* Set up the stuff for the listenfd */
+	memset ((char *) &myaddr, 0, sizeof(myaddr));
+	myaddr.sin_family      = AF_INET;
+	/* FIXME: Do a getsockname and have a random port */
+	myaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	myaddr.sin_port        = htons(9000);
+
+	/* We try to bind to port 7000 on any address */
+	int listenfd;
+	listenfd = socket (AF_INET, SOCK_STREAM, 0); // Création d'un point de communication
+
+	int info = 0;
+	info = bind (listenfd, (const struct sockaddr*) &myaddr, sizeof (myaddr)); // 2me étape: chaque processus attache son socket à un port 
+	if (info < 0)
+		exit_error("Something went wrong with bind");
+	/* We mark the socket as a passive, i.e. listening socket */
+	info = listen (listenfd, BACKLOG);
+	if (info < 0)
+		exit_error("Something went wrong with listen");
+
+	socklen_t clientlen = (socklen_t) sizeof (myaddr);
+	/* Creation of 2 ports to receive data */
+	unsigned int p1, p2;
+	generate_client_ports(&p1, &p2, 9000);
+	size_t size = MAXLINE;
+	char buf[MAXLINE];
+	snprintf(buf, size, "PORT %u,%u,%u,%u,%u,%u\r\n", 127,0,0,1,p1,p2);
+	printf ("%s", buf);
+	sock_print_nostat(connfd, buf);
+	/* FIXME: Here we do a our_readline to check for the status */
+
+	/* Wainting answer of the server */
+	listenfd = accept (listenfd, (struct sockaddr*) &myaddr, &clientlen);
+	return listenfd;
+}
+
 /* Function which analyzes the command */
 void analyseCommandLine(int connfd) {
-	char* readbuf = calloc(MAXLINE + 1, sizeof(char));	
-	char* command;	
+	char* readbuf = calloc(MAXLINE + 1, sizeof(char));
+	char* command;
 	char separator = ' ';
 	//int datafd;
 
 	while(1) {
-		printf("# ");		
-		readbuf = gets(readbuf); // Read command line in the shell 		
-		command = strtok(readbuf, &separator); // Take the first argument						
+		printf("# ");
+		readbuf = gets(readbuf); // Read command line in the shell 
+		command = strtok(readbuf, &separator); // Take the first argument
 		/* Local commands */
 		if(isInCommandClient(command) != -1) {
 			// Command found, we execute it
 			// We remove the first character of the command
-			char * line = calloc(256, sizeof(char));			
-			char * arg;			
-			size_t i = 1;			
+			char * line = calloc(256, sizeof(char));
+			char * arg;
+			size_t i = 1;
 			while(i < strlen(command)) {
 				line[i - 1] = command[i];
 				i++;
 			}
 			// We copy the rest of the command line
 			while(NULL != (arg = strtok(NULL, &separator))) {
-				line = strcat(line, " ");					
-				line = strcat(line, arg);							
-			}		
+				line = strcat(line, " ");
+				line = strcat(line, arg);
+			}
 			system(line); // We execute the line
 			free(line); 
 		} 
 		else if(!strcmp(command, "pwd")) {
-		 	sock_print_nostat (connfd, "PWD");
-		} else if(!strcmp(command, "cd")) {
+			sock_print_nostat (connfd, "PWD");
+		}
+		else if(!strcmp(command, "cd")) {
 			sock_print_nostat (connfd, "CWD chemin");
-		} else if(!strcmp(command, "ls")) {
-			//list_handler (datafd, connfd);
-		} else if(!strcmp(command, "bye")) {
-			//quit_handler (datafd, connfd);			
+		} 
+		else if(!strcmp(command, "ls"))
+		{
+			int listenfd = init_data_connection (connfd, 9000);
+			ssize_t len;
+			char buf[MAXLINE];
+			ssize_t readcnt = 0;
+			while ((len = read (listenfd, (void*) buf+readcnt, MAXLINE)) > 0)
+			{
+				readcnt+= len;
+				printf ("DEBUG: %s\n", buf);
+			}
+			close (listenfd);
+			break;
+		}
+		else if(!strcmp(command, "bye")) {
+			//quit_handler (datafd, connfd);
 			break;
 		} else if(!strcmp(command, "get")) {
 			// get a file
@@ -81,28 +136,21 @@ void analyseCommandLine(int connfd) {
 		} else {
 			printf("Invalid used of the command: %s" , command);
 		}
-		// Re-Initialization 		
-		free(readbuf);		
-		readbuf = calloc(MAXLINE + 1, sizeof(char));	
+		// Re-Initialization
+		free(readbuf);
+		readbuf = calloc(MAXLINE + 1, sizeof(char));
 	}
-	free(readbuf);		
-}
-
-/* Generation of client ports*/
-void generate_client_ports (unsigned int* p1, unsigned int* p2, unsigned int p)
-{
-        *p1 = p / 256;
-        *p2 = p % 256;
+	free(readbuf);
 }
 
 int main(int argc, char** argv) 
 {
-	int listenfd, connfd, conndfd2;
-	struct sockaddr_in servaddr, myaddr;
+	int connfd;
+	struct sockaddr_in servaddr;
 
 	if (argc !=2)
 		exit_error ("Bad Arguments! \nUsage : ./client <IPServerAdress>");
-	
+
 	/* Set up the stuff for the listenfd */
 	memset ((char *) &servaddr, 0, sizeof(servaddr));
 	servaddr.sin_family      = AF_INET;
@@ -116,44 +164,9 @@ int main(int argc, char** argv)
 	/* We try to connect to port 7000 on the server */
 	if (connect (connfd , (struct sockaddr *) &servaddr , sizeof ( servaddr )) < 0)
 		exit_error ("connect error");
-	
-	/* Creation of a temporrary connection to receive data of the server */
-	
-	/* Set up the stuff for the listenfd */
-	memset ((char *) &servaddr, 0, sizeof(servaddr));
-	myaddr.sin_family      = AF_INET;
-	myaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-	myaddr.sin_port        = htons(9000);
-	
-	/* We try to bind to port 7000 on any address */
-	listenfd = socket (AF_INET, SOCK_STREAM, 0); // Création d'un point de communication	
-	
-	int info = 0;
-	info = bind (listenfd, (const struct sockaddr*) &myaddr, sizeof (myaddr)); // 2me étape: chaque processus attache son socket à un port 
-	if (info < 0)
-		exit_error("Something went wrong with bind");
-	/* We mark the socket as a passive, i.e. listening socket */
-	info = listen (listenfd, BACKLOG); 
-	if (info < 0)
-		exit_error("Something went wrong with listen");
-	
-	socklen_t clientlen = (socklen_t) sizeof (myaddr);
-	/* Creation of 2 ports to receive data */	
-	unsigned int p1, p2;
-	generate_client_ports(&p1, &p2, 9000);
-	size_t size = MAXLINE;
-	char buf[MAXLINE];	
-	snprintf(buf, size, "PORT %u,%u,%u,%u,%u,%u\r\n", 127,0,0,1,p1,p2);
-	sock_print_nostat(connfd, buf);
-	
 
-	/* Wainting answer of the server */	
-	conndfd2 = accept (listenfd, (struct sockaddr*) &myaddr, &clientlen);	
-
-		
-		
 	/*client code */
 	analyseCommandLine(connfd);
- 		   
+
 	return 0;
 }
