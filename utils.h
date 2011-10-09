@@ -9,5 +9,6 @@ unsigned int get_client_port (const unsigned int p1, const unsigned int p2);
 void sock_print (int fd, uint16_t code, char* str);
 void sock_print_nostat (int fd, char* str);
 size_t our_readline (char* readbuf, int connfd);
+void generate_client_ports (unsigned int* p1, unsigned int* p2, unsigned int p);
 
 #endif /* UTILS_H */

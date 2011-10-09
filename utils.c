@@ -21,6 +21,12 @@ get_client_port (const unsigned int p1,
 	return p1*256+p2;
 }
 
+void generate_client_ports (unsigned int* p1, unsigned int* p2, unsigned int p)
+{
+	*p1 = p / 256;
+	*p2 = p % 256;
+}
+
 size_t our_readline (char* readbuf, int connfd)
 {
 	size_t readcnt = 0;

@@ -64,9 +64,9 @@ init_data_connection (int connfd, unsigned int port)
 	generate_client_ports(&p1, &p2, 9000);
 	size_t size = MAXLINE;
 	char buf[MAXLINE];
-	snprintf(buf, size, "PORT %u,%u,%u,%u,%u,%u\r\n", 127,0,0,1,p1,p2);
+	snprintf (buf, size, "PORT %u,%u,%u,%u,%u,%u\r\n", 127,0,0,1,p1,p2);
 	printf ("%s", buf);
-	sock_print_nostat(connfd, buf);
+	sock_print_nostat (connfd, buf);
 	/* FIXME: Here we do a our_readline to check for the status */
 
 	/* Wainting answer of the server */
