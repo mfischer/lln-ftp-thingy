@@ -43,7 +43,6 @@ size_t our_readline (char* readbuf, int connfd)
 		else
 			readcnt++;
 	}
-	printf ("DEBUG: %s\n", readbuf);
 	return readcnt;
 }
 

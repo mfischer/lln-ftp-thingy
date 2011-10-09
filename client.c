@@ -64,13 +64,16 @@ init_data_connection (int connfd, unsigned int port)
 	generate_client_ports(&p1, &p2, 9000);
 	size_t size = MAXLINE;
 	char buf[MAXLINE];
-	snprintf (buf, size, "PORT %u,%u,%u,%u,%u,%u\r\n", 127,0,0,1,p1,p2);
-	printf ("%s", buf);
+	snprintf (buf, size, "PORT %u,%u,%u,%u,%u,%u", 127, 0, 0, 1, p1, p2);
+	printf ("[DEBUG] %s\n", buf);
 	sock_print_nostat (connfd, buf);
+	our_readline (buf, connfd);
+	printf ("[DEBUG] %s\n", buf);
 	/* FIXME: Here we do a our_readline to check for the status */
 
 	/* Wainting answer of the server */
 	listenfd = accept (listenfd, (struct sockaddr*) &myaddr, &clientlen);
+	printf ("[DEBUG] We accepted\n");
 	return listenfd;
 }
 
@@ -113,14 +116,22 @@ void analyseCommandLine(int connfd) {
 		else if(!strcmp(command, "ls"))
 		{
 			int listenfd = init_data_connection (connfd, 9000);
-			ssize_t len;
 			char buf[MAXLINE];
-			ssize_t readcnt = 0;
-			while ((len = read (listenfd, (void*) buf+readcnt, MAXLINE)) > 0)
+			our_readline (buf, connfd);
+			printf ("[DEBUG]: %s\n", buf);
+
+			sock_print_nostat (connfd, "LIST");
+			ssize_t len;
+			for(;;)
 			{
-				readcnt+= len;
-				printf ("DEBUG: %s\n", buf);
+				len = read (listenfd, (void *) buf, MAXLINE * sizeof(char));
+				/*printf ("[DEBUG] Read %d bytes\n",(int) len);*/
+				if (len <= 0)
+				{
+					close (listenfd);
+				}
 			}
+
 			close (listenfd);
 			break;
 		}
@@ -147,6 +158,7 @@ int main(int argc, char** argv)
 {
 	int connfd;
 	struct sockaddr_in servaddr;
+	char buf[MAXLINE];
 
 	if (argc !=2)
 		exit_error ("Bad Arguments! \nUsage : ./client <IPServerAdress>");
@@ -165,7 +177,10 @@ int main(int argc, char** argv)
 	if (connect (connfd , (struct sockaddr *) &servaddr , sizeof ( servaddr )) < 0)
 		exit_error ("connect error");
 
-	/*client code */
+	/* This will be the server's welcome msg */
+	our_readline (buf, connfd);
+	printf ("%s\n", buf);
+
 	analyseCommandLine(connfd);
 
 	return 0;
