@@ -64,9 +64,9 @@ void analyseCommandLine(int connfd) {
 			free(line); 
 		} 
 		else if(!strcmp(command, "pwd")) {
-		//	pwd_handler (datafd, connfd);
+		 	sock_print_nostat (connfd, "PWD");
 		} else if(!strcmp(command, "cd")) {
-		//	cwd_handler (datafd, cmdptr, connfd);
+			sock_print_nostat (connfd, "CWD chemin");
 		} else if(!strcmp(command, "ls")) {
 			//list_handler (datafd, connfd);
 		} else if(!strcmp(command, "bye")) {
@@ -88,10 +88,17 @@ void analyseCommandLine(int connfd) {
 	free(readbuf);		
 }
 
+/* Generation of client ports*/
+void generate_client_ports (unsigned int* p1, unsigned int* p2, unsigned int p)
+{
+        *p1 = p / 256;
+        *p2 = p % 256;
+}
+
 int main(int argc, char** argv) 
 {
-	int connfd;
-	struct sockaddr_in servaddr;
+	int listenfd, connfd, conndfd2;
+	struct sockaddr_in servaddr, myaddr;
 
 	if (argc !=2)
 		exit_error ("Bad Arguments! \nUsage : ./client <IPServerAdress>");
@@ -110,6 +117,41 @@ int main(int argc, char** argv)
 	if (connect (connfd , (struct sockaddr *) &servaddr , sizeof ( servaddr )) < 0)
 		exit_error ("connect error");
 	
+	/* Creation of a temporrary connection to receive data of the server */
+	
+	/* Set up the stuff for the listenfd */
+	memset ((char *) &servaddr, 0, sizeof(servaddr));
+	myaddr.sin_family      = AF_INET;
+	myaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	myaddr.sin_port        = htons(9000);
+	
+	/* We try to bind to port 7000 on any address */
+	listenfd = socket (AF_INET, SOCK_STREAM, 0); // Création d'un point de communication	
+	
+	int info = 0;
+	info = bind (listenfd, (const struct sockaddr*) &myaddr, sizeof (myaddr)); // 2me étape: chaque processus attache son socket à un port 
+	if (info < 0)
+		exit_error("Something went wrong with bind");
+	/* We mark the socket as a passive, i.e. listening socket */
+	info = listen (listenfd, BACKLOG); 
+	if (info < 0)
+		exit_error("Something went wrong with listen");
+	
+	socklen_t clientlen = (socklen_t) sizeof (myaddr);
+	/* Creation of 2 ports to receive data */	
+	unsigned int p1, p2;
+	generate_client_ports(&p1, &p2, 9000);
+	size_t size = MAXLINE;
+	char buf[MAXLINE];	
+	snprintf(buf, size, "PORT %u,%u,%u,%u,%u,%u\r\n", 127,0,0,1,p1,p2);
+	sock_print_nostat(connfd, buf);
+	
+
+	/* Wainting answer of the server */	
+	conndfd2 = accept (listenfd, (struct sockaddr*) &myaddr, &clientlen);	
+
+		
+		
 	/*client code */
 	analyseCommandLine(connfd);
  		   
