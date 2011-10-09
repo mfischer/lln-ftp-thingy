@@ -33,12 +33,13 @@ handle_client_connection (int connfd)
 	void* cmdptr = malloc (sizeof(union cmd));
 	int datafd;
 
-	unsigned int current_cmd;
+	/*unsigned int current_cmd;*/
 
-	/* We wait for a username */
+#ifdef USER_CMD_ACTIVATED
+	We wait for a username
 	while (1)
 	{
-  		len	= our_readline (readbuf, connfd);
+		len	= our_readline (readbuf, connfd);
 		current_cmd = line_to_cmd (readbuf, len, cmdptr);
 		if (FTP_CMD_USER == current_cmd)
 		{
@@ -61,7 +62,9 @@ handle_client_connection (int connfd)
 			break;
 		}
 		sock_print (connfd, FTP_USER_OK, FTP_USER_OK_STR);
-  }
+	}
+
+#endif
 
 	/* Our mainloop ...*/
 	while (1)

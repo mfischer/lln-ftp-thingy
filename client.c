@@ -33,7 +33,7 @@ int isInCommandClient(char * command) {
 	return -1;
 }
 
-	int
+int
 init_data_connection (int connfd, unsigned int port)
 {
 
