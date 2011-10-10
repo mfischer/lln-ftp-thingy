@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -74,7 +76,7 @@ init_data_connection (int connfd, unsigned int port)
 	size_t size = MAXLINE;
 	char buf[MAXLINE];
 	snprintf (buf, size, "PORT %u,%u,%u,%u,%u,%u", 127, 0, 0, 1, p1, p2);
-	printf ("[DEBUG] %s\n", buf);
+	/*printf ("[DEBUG] %s\n", buf);*/
 	sock_print_nostat (connfd, buf);
 	our_readline (buf, connfd);
 	if (FTP_CMD_OK != response_to_status (buf))
@@ -86,6 +88,25 @@ init_data_connection (int connfd, unsigned int port)
 	newfd = accept (listenfd, (struct sockaddr*) &myaddr, &clientlen);
 	close (listenfd);
 	return newfd;
+}
+
+
+	void
+data_transfer (int listenfd, int connfd, int outfd, char* buf)
+{
+	ssize_t len;
+	for(;;)
+	{
+		len = read (listenfd, (void *) buf, MAXLINE * sizeof(char));
+		printf ("[DEBUG] Read/Sent %d bytes\n", (int) len);
+		write (outfd, (void*) buf, len);
+		if (len <= 0)
+		{
+			close (listenfd);
+			break;
+		}
+	}
+
 }
 
 /* Function which analyzes the command */
@@ -136,47 +157,79 @@ analize_command_line(int connfd)
 		{
 			int listenfd = init_data_connection (connfd, 50000);
 			char buf[MAXLINE];
-			if (FTP_CMD_OK == response_to_status (buf))
-			{
-				printf ("%s\n", buf+4);
-			}
 
-			sock_print_nostat (connfd, "LIST");
+			sprintf (buf, "LIST %s", readbuf+3);
+			sock_print_nostat (connfd, buf);
 
 			/* FIXME: WTF? Check what the server thinks about this */
 			our_readline (buf, connfd);
-			printf ("[DEBUG] Status: %u\n", response_to_status (buf));
+			if (response_to_status (buf) != FTP_FILE_STATUS_OK_OPEN_CONN)
+				printf ("[DEBUG] Status: %u\n", response_to_status (buf));
 
-			ssize_t len;
-			for(;;)
-			{
-				len = read (listenfd, (void *) buf, MAXLINE * sizeof(char));
-				write (1, (void*) buf, len);
-				if (len <= 0)
-				{
-					close (listenfd);
-					break;
-				}
-			}
-			/* Here we see what happens to the data connection */
-			our_readline (buf, connfd);
-			/* FIXME: This could also be a 250 in theory */
-			if (response_to_status (buf) != FTP_FINISHED_CLOSING)
-			{
-				printf ("Something went wrong, got %u\n", response_to_status (buf));
-			}
+			data_transfer (listenfd, connfd, 1, buf);
 		}
 		else if(!strcmp(command, "bye"))
 		{
 			/*break;*/
 		}
-		else if(!strcmp(command, "get")) {
-			// get a file
-			//retr_handler (datafd, cmdptr, connfd);
+		else if(!strcmp(command, "get"))
+		{
+			int listenfd = init_data_connection (connfd, 50000);
+			char buf[MAXLINE];
+			char args[MAXPATH];
+			sprintf (buf, "RETR %s", readbuf+4);
+			sprintf (args, "local-%s", readbuf+4);
+			sock_print_nostat (connfd, buf);
+
+			int f = open (args,
+					O_CREAT | O_WRONLY,
+					S_IRWXU | S_IRWXG | S_IROTH);
+
+			if (f < 0)
+				perror ("");
+			printf ("[DEBUG] Opened local file %s\n", args);
+
+			/* Check what the server thinks about this */
+			our_readline (buf, connfd);
+			if (response_to_status (buf) != FTP_FILE_STATUS_OK_OPEN_CONN)
+				printf ("[DEBUG] Status: %u\n", response_to_status (buf));
+
+			printf ("[DEBUG] Starting datatransfer\n");
+			data_transfer (listenfd, connfd, f, buf);
+			close (f);
+			our_readline (buf, connfd);
+			if (response_to_status (buf) != FTP_FINISHED_CLOSING)
+			{
+				printf ("[DEBUG] Status: %u\n", response_to_status (buf));
+				close (listenfd);
+			}
 		}
 		else if(!strcmp(command, "put")) {
-			// put a file
-			//				stor_handler (datafd, cmdptr, connfd);
+			int listenfd = init_data_connection (connfd, 50000);
+			char buf[MAXLINE];
+
+			char args[MAXPATH];
+			sprintf (buf, "STOR remote-%s", readbuf+4);
+			sprintf (args, "%s", readbuf+4);
+			sock_print_nostat (connfd, buf);
+
+			int f = open (args, O_RDONLY);
+
+			if (f < 0)
+				perror ("Opening the local file went wrong.");
+
+			/* Check what the server thinks about this */
+			our_readline (buf, connfd);
+			if (response_to_status (buf) != FTP_FILE_STATUS_OK_OPEN_CONN)
+				printf ("[DEBUG] Status: %u\n", response_to_status (buf));
+
+			data_transfer (f, connfd, listenfd, buf);
+			/* Cleanup ... */
+			close (f);
+			close (listenfd);
+			our_readline (buf, connfd);
+			if (response_to_status (buf) != FTP_FINISHED_CLOSING)
+				printf ("[DEBUG] Status: %u\n", response_to_status (buf));
 		}
 		else {
 			printf("Invalid use of the command: %s" , command);
