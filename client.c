@@ -158,9 +158,8 @@ int main(int argc, char** argv)
 
 	/* This will be the server's welcome msg */
 	our_readline (buf, connfd);
-	printf ("%s\n", buf);
+	printf ("%s\n", buf+4);
 
-	/*analyse_command_line(connfd);*/
 	while (1)
 	{
 		char cmd[MAXLINE];
@@ -177,12 +176,19 @@ int main(int argc, char** argv)
 			sscanf (line, "%s %s", cmd, args);
 			if(!strncmp (cmd, "logout", 6))
 			{
-				printf ("TODO sending QUIT ...\n");
+				sock_print_nostat (connfd, "QUIT");
+				our_readline (buf, connfd);
+				if (response_to_status (buf) == FTP_BYE)
+				{
+					printf ("Closing connection to server...\n");
+					close (connfd);
+					return EXIT_SUCCESS;
+				}
 			}
 			else if (!strncmp (cmd, "ls", 2))
 			{
 				/* FIXME: This should be a random port */
-				int listenfd = init_data_connection (connfd, 50000);
+				int listenfd = init_data_connection (connfd, 1024 + rand());
 				char buf[MAXLINE];
 
 				sprintf (buf, "LIST %s", args);
@@ -192,8 +198,10 @@ int main(int argc, char** argv)
 				our_readline (buf, connfd);
 				if (response_to_status (buf) != FTP_FILE_STATUS_OK_OPEN_CONN)
 					printf ("[DEBUG] Status: %u\n", response_to_status (buf));
-
 				data_transfer (listenfd, connfd, 1, buf);
+				our_readline (buf, connfd);
+				if (response_to_status (buf) != FTP_FINISHED_CLOSING)
+					printf ("[DEBUG] Status: %u\n", response_to_status (buf));
 			}
       else if (!strncmp (cmd, "lpwd", 4))
 			{
@@ -246,21 +254,23 @@ int main(int argc, char** argv)
 
 				if (f < 0)
 					perror ("");
-				printf ("[DEBUG] Opened local file %s\n", args);
+				#ifdef DEBUG
+					printf ("[DEBUG] Opened local file %s\n", args);
+				#endif
 
 				/* Check what the server thinks about this */
 				our_readline (buf, connfd);
-				if (response_to_status (buf) != FTP_FILE_STATUS_OK_OPEN_CONN)
-					printf ("[DEBUG] Status: %u\n", response_to_status (buf));
+				#ifdef DEBUG
+					if (response_to_status (buf) != FTP_FILE_STATUS_OK_OPEN_CONN)
+						printf ("[DEBUG] Status: %u\n", response_to_status (buf));
 
-				printf ("[DEBUG] Starting datatransfer\n");
+					printf ("[DEBUG] Starting datatransfer\n");
+				#endif
 				data_transfer (listenfd, connfd, f, buf);
 				close (f);
 				our_readline (buf, connfd);
-				if (response_to_status (buf) != FTP_FINISHED_CLOSING)
-				{
+				if (response_to_status (buf) == FTP_FINISHED_CLOSING)
 					close (listenfd);
-				}
 			}
 			else if (!strncmp (cmd, "put", 4))
 			{
@@ -291,9 +301,9 @@ int main(int argc, char** argv)
 				if (response_to_status (buf) != FTP_FINISHED_CLOSING)
 					printf ("[DEBUG] Status: %u\n", response_to_status (buf));
 			}
-			else if (!strncmp (cmd, "logout", 6))
+			else if (!strncmp (cmd, "help", 4))
 			{
-				printf ("TODO, send QUIT command!\n");
+				printf ("Available commands: {ls,pwd,cd,put,get, lls,lcd,pwd,logout}\n");
 			}
 
 			else

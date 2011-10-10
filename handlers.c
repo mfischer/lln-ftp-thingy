@@ -82,6 +82,7 @@ void
 quit_handler (int datafd, int connfd)
 {
 	printf ("[DEBUG/TODO] QUIT handler\n");
+	sock_print(connfd, FTP_BYE, FTP_BYE_STR);
 	close (connfd);
 	_exit (0);
 }
