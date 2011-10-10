@@ -32,7 +32,7 @@ size_t our_readline (char* readbuf, int connfd)
 {
 	size_t readcnt = 0;
 	memset (readbuf, 0, sizeof (readbuf));
-	while (readcnt <= MAXLINE)
+	while (readcnt < MAXLINE)
 	{
 		read (connfd, (void*) readbuf+readcnt, sizeof(char));
 		if (readbuf[readcnt ] == '\n')
@@ -67,7 +67,7 @@ sock_print_nostat (int fd, char* str)
 unsigned int
 line_to_cmd (const char* line, size_t readcnt, void* cmd)
 {
-	if (readcnt < MAXCMD)
+	if (readcnt < MAXCMD-1)
 	{
 		printf ("Parse error in: %s\n", line);
 		return FTP_CMD_PARSE_ERROR;

@@ -25,7 +25,8 @@ static char commandClient [NB_CMDCLIENT][CMD_SIZE] = {
 };
 
 /* To check if it's a command which is executed on the client */
-int isInCommandClient(char * command) {
+int
+is_client_command(char * command) {
 	unsigned i = 0;
 	for( ; i < NB_CMDCLIENT; i++) {
 		if(!strcmp(command, commandClient[i])) return 0;
@@ -33,24 +34,33 @@ int isInCommandClient(char * command) {
 	return -1;
 }
 
+unsigned int
+response_to_status (const char* s)
+{
+	unsigned int ret;
+	sscanf (s, "%u", &ret);
+	return ret;
+}
+
 int
 init_data_connection (int connfd, unsigned int port)
 {
 
+	/* Set up the stuff for the data connection */
 	struct sockaddr_in myaddr;
-	/* Set up the stuff for the listenfd */
 	memset ((char *) &myaddr, 0, sizeof(myaddr));
 	myaddr.sin_family      = AF_INET;
 	/* FIXME: Do a getsockname and have a random port */
 	myaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-	myaddr.sin_port        = htons(9000);
+	myaddr.sin_port        = htons(port);
 
-	/* We try to bind to port 7000 on any address */
+	/* We try to bind to port 9000 on any address */
 	int listenfd;
-	listenfd = socket (AF_INET, SOCK_STREAM, 0); // Création d'un point de communication
+	int newfd;
+	listenfd = socket (AF_INET, SOCK_STREAM, 0);
 
 	int info = 0;
-	info = bind (listenfd, (const struct sockaddr*) &myaddr, sizeof (myaddr)); // 2me étape: chaque processus attache son socket à un port 
+	info = bind (listenfd, (const struct sockaddr*) &myaddr, sizeof (myaddr));
 	if (info < 0)
 		exit_error("Something went wrong with bind");
 	/* We mark the socket as a passive, i.e. listening socket */
@@ -59,37 +69,40 @@ init_data_connection (int connfd, unsigned int port)
 		exit_error("Something went wrong with listen");
 
 	socklen_t clientlen = (socklen_t) sizeof (myaddr);
-	/* Creation of 2 ports to receive data */
 	unsigned int p1, p2;
-	generate_client_ports(&p1, &p2, 9000);
+	generate_client_ports(&p1, &p2, port);
 	size_t size = MAXLINE;
 	char buf[MAXLINE];
 	snprintf (buf, size, "PORT %u,%u,%u,%u,%u,%u", 127, 0, 0, 1, p1, p2);
 	printf ("[DEBUG] %s\n", buf);
 	sock_print_nostat (connfd, buf);
 	our_readline (buf, connfd);
-	printf ("[DEBUG] %s\n", buf);
-	/* FIXME: Here we do a our_readline to check for the status */
+	if (FTP_CMD_OK != response_to_status (buf))
+	{
+		printf ("Server did not like the PORT command!\n");
+	}
 
-	/* Wainting answer of the server */
-	listenfd = accept (listenfd, (struct sockaddr*) &myaddr, &clientlen);
-	printf ("[DEBUG] We accepted\n");
-	return listenfd;
+	/* Waiting answer of the server */
+	newfd = accept (listenfd, (struct sockaddr*) &myaddr, &clientlen);
+	close (listenfd);
+	return newfd;
 }
 
 /* Function which analyzes the command */
-void analyseCommandLine(int connfd) {
+void
+analize_command_line(int connfd)
+{
 	char* readbuf = calloc(MAXLINE + 1, sizeof(char));
 	char* command;
 	char separator = ' ';
-	//int datafd;
 
 	while(1) {
-		printf("# ");
+		printf("> ");
 		readbuf = gets(readbuf); // Read command line in the shell 
 		command = strtok(readbuf, &separator); // Take the first argument
 		/* Local commands */
-		if(isInCommandClient(command) != -1) {
+		if(is_client_command(command) != -1)
+		{
 			// Command found, we execute it
 			// We remove the first character of the command
 			char * line = calloc(256, sizeof(char));
@@ -109,43 +122,64 @@ void analyseCommandLine(int connfd) {
 		} 
 		else if(!strcmp(command, "pwd")) {
 			sock_print_nostat (connfd, "PWD");
+			char buf[MAXLINE];
+			our_readline (buf, connfd);
+			if (FTP_CMD_OK == response_to_status (buf))
+			{
+				printf ("%s\n", buf+4);
+			}
 		}
 		else if(!strcmp(command, "cd")) {
-			sock_print_nostat (connfd, "CWD chemin");
+			sock_print_nostat (connfd, "CWD");
 		} 
 		else if(!strcmp(command, "ls"))
 		{
-			int listenfd = init_data_connection (connfd, 9000);
+			int listenfd = init_data_connection (connfd, 50000);
 			char buf[MAXLINE];
-			our_readline (buf, connfd);
-			printf ("[DEBUG]: %s\n", buf);
+			if (FTP_CMD_OK == response_to_status (buf))
+			{
+				printf ("%s\n", buf+4);
+			}
 
 			sock_print_nostat (connfd, "LIST");
+
+			/* FIXME: WTF? Check what the server thinks about this */
+			our_readline (buf, connfd);
+			printf ("[DEBUG] Status: %u\n", response_to_status (buf));
+
 			ssize_t len;
 			for(;;)
 			{
 				len = read (listenfd, (void *) buf, MAXLINE * sizeof(char));
-				/*printf ("[DEBUG] Read %d bytes\n",(int) len);*/
+				write (1, (void*) buf, len);
 				if (len <= 0)
 				{
 					close (listenfd);
+					break;
 				}
 			}
-
-			close (listenfd);
-			break;
+			/* Here we see what happens to the data connection */
+			our_readline (buf, connfd);
+			/* FIXME: This could also be a 250 in theory */
+			if (response_to_status (buf) != FTP_FINISHED_CLOSING)
+			{
+				printf ("Something went wrong, got %u\n", response_to_status (buf));
+			}
 		}
-		else if(!strcmp(command, "bye")) {
-			//quit_handler (datafd, connfd);
-			break;
-		} else if(!strcmp(command, "get")) {
+		else if(!strcmp(command, "bye"))
+		{
+			/*break;*/
+		}
+		else if(!strcmp(command, "get")) {
 			// get a file
 			//retr_handler (datafd, cmdptr, connfd);
-		} else if(!strcmp(command, "put")) {
+		}
+		else if(!strcmp(command, "put")) {
 			// put a file
 			//				stor_handler (datafd, cmdptr, connfd);
-		} else {
-			printf("Invalid used of the command: %s" , command);
+		}
+		else {
+			printf("Invalid use of the command: %s" , command);
 		}
 		// Re-Initialization
 		free(readbuf);
@@ -161,7 +195,7 @@ int main(int argc, char** argv)
 	char buf[MAXLINE];
 
 	if (argc !=2)
-		exit_error ("Bad Arguments! \nUsage : ./client <IPServerAdress>");
+		exit_error ("Bad Arguments!\nUsage : ./client <IPServerAdress>");
 
 	/* Set up the stuff for the listenfd */
 	memset ((char *) &servaddr, 0, sizeof(servaddr));
@@ -181,7 +215,7 @@ int main(int argc, char** argv)
 	our_readline (buf, connfd);
 	printf ("%s\n", buf);
 
-	analyseCommandLine(connfd);
+	analize_command_line(connfd);
 
 	return 0;
 }
