@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-Wall -Werror -std=c99 -D_POSIX_C_SOURCE -g
-LDFLAGS=
+LDFLAGS=-ledit -lhistory
 #-ledit
 EXEC=client server
 
