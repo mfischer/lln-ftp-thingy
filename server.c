@@ -135,6 +135,7 @@ void handle_client_connection (int connfd)
 We wait the client at the port 7000 and we do a fork when there is one.
 @param argc must be set at 1.
 @param argv must contain one string which is myftpd .
+@return Returns 0 if no problem encountered.
 **/
 int main (int argc, char** argv)
 {
