@@ -87,30 +87,66 @@
 #define MAXPATH 255
 
 
+/**
 
+@union cmd 
+@brief Contains all kinds of commands implemented by the server.
+**/
 union cmd
 {
+	/**
+	@struct cmd_user
+	@brief Command containing the username.
+	**/	
 	struct cmd_user
 	{
 		char user[MAXUSER];
-  } cmd_user;
+  	} cmd_user;
+	
+	/**
+	@struct cmd_pass
+	@brief Command containing the password.
+	**/	
 	struct cmd_pass
 	{
 		char pass[MAXUSER];
-  } cmd_pass;
+  	} cmd_pass;
+	
+	/**
+	@struct cmd_port
+	@brief Command containing the port number and IP address.
+	**/	
 	struct cmd_port
 	{
 		unsigned int port;
 		char addr[MAXIPLEN];
-  } cmd_port;
+  	} cmd_port;
+	
+	/**
+	@struct cmd_port
+	@brief Command containing information about the command put.\n
+	We have the path of the file.
+	**/	
 	struct cmd_stor
 	{
 		char path[MAXPATH];
 	} cmd_stor;
+	
+	/**
+	@struct cmd_retr
+	@brief Command containing information about the command get.\n
+	We have the path of the file.
+	**/	
 	struct cmd_retr
 	{
 		char path[MAXPATH];
 	} cmd_retr;
+	
+	/**
+	@struct cmd_cwd
+	@brief Command containing information about the command cd.\n
+	We have the path of the new directory.
+	**/	
 	struct cmd_cwd
 	{
 		char path[MAXPATH];
