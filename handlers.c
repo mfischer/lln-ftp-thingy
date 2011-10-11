@@ -1,3 +1,10 @@
+/**
+@file handlers.c
+@brief This file contains the definition of all the command implementted by the server.
+@author Moritz FISCHER & Thibault MERLE
+@version 1.0
+@date 10-11-2011
+**/
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -13,15 +20,23 @@
 #include "constants.h"
 #include "utils.h"
 
-void
-syst_handler (int connfd)
+/**
+@fn void syst_handler (int connfd)
+@brief This function displays the error message and exits the program.
+@param err_msg is a string that contains the error message.
+**/
+void syst_handler (int connfd)
 {
 	sock_print (connfd, FTP_SYST, FTP_SYST_RESP_STR);
 	printf ("[DEBUG] SYST handler\n");
 }
 
-void
-port_handler (int connfd, void* cmdptr, int* datafd)
+/**
+@fn void port_handler (int connfd, void* cmdptr, int* datafd)
+@brief This function displays the error message and exits the program.
+@param err_msg is a string that contains the error message.
+**/
+void port_handler (int connfd, void* cmdptr, int* datafd)
 {
 	printf ("[DEBUG] PORT handler\n");
 	cmd_port_t* tmp = (cmd_port_t*) cmdptr;
@@ -46,8 +61,12 @@ port_handler (int connfd, void* cmdptr, int* datafd)
 	sock_print (connfd, FTP_CMD_OK, FTP_CMD_OK_STR);
 }
 
-void
-list_handler (int datafd, int connfd)
+/**
+@fn void list_handler (int datafd, int connfd)
+@brief This function displays the error message and exits the program.
+@param err_msg is a string that contains the error message.
+**/
+void list_handler (int datafd, int connfd)
 {
 	printf ("[DEBUG] LIST handler\n");
 	sock_print (connfd, FTP_FILE_STATUS_OK_OPEN_CONN, FTP_FILE_STATUS_OK_OPEN_CONN_STR);
@@ -67,8 +86,12 @@ list_handler (int datafd, int connfd)
 	sock_print (connfd, FTP_FINISHED_CLOSING, FTP_FINISHED_CLOSING_STR);
 }
 
-void
-pwd_handler (int datafd, int connfd)
+/**
+@fn void pwd_handler (int datafd, int connfd)
+@brief This function displays the error message and exits the program.
+@param err_msg is a string that contains the error message.
+**/
+void pwd_handler (int datafd, int connfd)
 {
 	printf ("[DEBUG] PWD handler\n");
 	char tmp[MAXLINE];
@@ -77,9 +100,12 @@ pwd_handler (int datafd, int connfd)
 	close (datafd);
 }
 
-
-void
-quit_handler (int datafd, int connfd)
+/**
+@fn void quit_handler (int datafd, int connfd)
+@brief This function displays the error message and exits the program.
+@param err_msg is a string that contains the error message.
+**/
+void quit_handler (int datafd, int connfd)
 {
 	printf ("[DEBUG/TODO] QUIT handler\n");
 	sock_print(connfd, FTP_BYE, FTP_BYE_STR);
@@ -87,8 +113,12 @@ quit_handler (int datafd, int connfd)
 	_exit (0);
 }
 
-void
-stor_handler (int datafd, void* cmdptr, int connfd)
+/**
+@fn void stor_handler (int datafd, void* cmdptr, int connfd)
+@brief This function displays the error message and exits the program.
+@param err_msg is a string that contains the error message.
+**/
+void stor_handler (int datafd, void* cmdptr, int connfd)
 {
 	cmd_stor_t* tmp = (cmd_stor_t *) cmdptr;
 	sock_print (connfd, FTP_FILE_STATUS_OK_OPEN_CONN, FTP_FILE_STATUS_OK_OPEN_CONN_STR);
@@ -120,8 +150,12 @@ stor_handler (int datafd, void* cmdptr, int connfd)
 	}
 }
 
-void
-retr_handler (int datafd, void* cmdptr, int connfd)
+/**
+@fn void retr_handler (int datafd, void* cmdptr, int connfd)
+@brief This function displays the error message and exits the program.
+@param err_msg is a string that contains the error message.
+**/
+void retr_handler (int datafd, void* cmdptr, int connfd)
 {
 	printf ("[DEBUG/TODO] RETR handler\n");
 	char buf[MAXLINE];
@@ -150,6 +184,11 @@ retr_handler (int datafd, void* cmdptr, int connfd)
 
 }
 
+/**
+@fn void cwd_handler (int datafd, void* cmdptr, int connfd)
+@brief This function displays the error message and exits the program.
+@param err_msg is a string that contains the error message.
+**/
 void cwd_handler (int datafd, void* cmdptr, int connfd)
 {
 	printf ("[DEBUG] CWD handler\n");
@@ -160,7 +199,11 @@ void cwd_handler (int datafd, void* cmdptr, int connfd)
   	chdir (tmp->path);
 }
 
-
+/**
+@fn void not_implemented_handler (int connfd)
+@brief This function displays the error message and exits the program.
+@param err_msg is a string that contains the error message.
+**/
 void not_implemented_handler (int connfd)
 {
 	printf ("[DEBUG]: NOT_IMPLEMENTED_HANDLER handler\n");

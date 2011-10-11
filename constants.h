@@ -1,3 +1,10 @@
+/**
+@file constants.h
+@brief This file contains constants used through the application.
+@author Moritz FISCHER & Thibault MERLE
+@version 1.0
+@date 10-11-2011
+**/
 #ifndef CODES_H
 #define CODES_H
 

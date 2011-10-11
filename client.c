@@ -1,3 +1,10 @@
+/**
+@file client.c
+@brief This file contains all functions about how does the client works.
+@author Moritz FISCHER & Thibault MERLE
+@version 1.0
+@date 10-11-2011
+**/
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
@@ -17,16 +24,28 @@
 #include "utils.h"
 #include "handlers.h"
 
-unsigned int
-response_to_status (const char* s)
+/**
+@fn unsigned int response_to_status (const char* s)
+@brief This function gets the status of a request
+@param s is a string that contains the return code.
+@return Returns the status of the request into an unsigned int
+**/
+unsigned int response_to_status (const char* s)
 {
 	unsigned int ret;
 	sscanf (s, "%u", &ret);
 	return ret;
 }
 
-int
-init_data_connection (int connfd, unsigned int port)
+/**
+@fn int init_data_connection (int connfd, unsigned int port)
+@brief This function inits the data connection between the server and the client.\n
+		---------------------------Must be completed-------------------------------
+@param connfd is a descriptor of the socket connection to the server.
+@param port is the port's number to wait a response of the server.
+@return Returns the new descriptor of the data connection in order to write to the server.
+**/
+int init_data_connection (int connfd, unsigned int port)
 {
 
 	/* Set up the stuff for the data connection */
@@ -69,9 +88,16 @@ init_data_connection (int connfd, unsigned int port)
 	return newfd;
 }
 
-
-void
-data_transfer (int listenfd, int connfd, int outfd, char* buf)
+/**
+@fn void data_transfer (int listenfd, int connfd, int outfd, char* buf)
+@brief This function is used to transfer data between the server and the client.	
+@param listenfd is the descriptor of the server. We read its response here.
+@param connfd is useless. #Must be deleted#
+@param outfd is the descriptor to write the response on the shell.
+@param buf is used like a buffer to transfer data.
+@return Returns the new descriptor of the data connection in order to write to the server.
+**/
+void data_transfer (int listenfd, int connfd, int outfd, char* buf)
 {
 	ssize_t len;
 	for(;;)
@@ -87,11 +113,23 @@ data_transfer (int listenfd, int connfd, int outfd, char* buf)
 	}
 }
 
-char *
-prompt(EditLine *e) {
+/**
+@fn char * prompt(EditLine *e)
+@brief This function is only the prompt that you can see at the beginning of each line.		
+@param e is HELP I DON T KNOW WHAT IS IT. 
+@return Returns the prompt which is ftp>.
+**/
+char * prompt(EditLine *e) {
   return "ftp> ";
 }
 
+/**
+@fn int main(int argc, char** argv)
+@brief It's the main function which runs all the client.
+@param argc must take the value 2 to succeded the run.
+@param argv must contains the name of the program "myftp" and the IP address of the server.
+@return Returns 0 if the program succeded.
+**/
 int main(int argc, char** argv) 
 {
 	int connfd;

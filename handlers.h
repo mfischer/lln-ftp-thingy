@@ -1,3 +1,11 @@
+/**
+@file handlers.h
+@brief This file contains the definition of all the command implementted by the server.
+@author Moritz FISCHER & Thibault MERLE
+@version 1.0
+@date 10-11-2011
+**/
+
 #ifndef HANDLERS_H
 #define HANDLERS_H
 
