@@ -1,6 +1,6 @@
 /**
 @file utils.h
-@brief This file contains functions which is used both by the server and the client.
+@brief This file contains functions which are used both by the server and the client.
 @author Moritz FISCHER & Thibault MERLE
 @version 1.0
 @date 10-11-2011

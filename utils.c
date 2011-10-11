@@ -1,6 +1,6 @@
 /**
 @file utils.c
-@brief This file contains functions which is used both by the server and the client.
+@brief This file contains functions which are used both by the server and the client.
 @author Moritz FISCHER & Thibault MERLE
 @version 1.0
 @date 10-11-2011
@@ -79,9 +79,10 @@ size_t our_readline (char* readbuf, int connfd)
 
 /**
 @fn void sock_print (int fd, uint16_t code, char* str)
-@brief This function gets the status of a request
-@param s is a string that contains the return code.
-@return Returns the status of the request into an unsigned int
+@brief This function send data to the descriptor fd with a message code.
+@param fd is a descriptor generally a socket descriptor.
+@param code is a number that shows about what commands is sent.
+@param str is the rest of the command without the command name.
 **/
 void sock_print (int fd, uint16_t code, char* str)
 {
@@ -93,9 +94,9 @@ void sock_print (int fd, uint16_t code, char* str)
 
 /**
 @fn void sock_print_nostat (int fd, char* str)
-@brief This function gets the status of a request
-@param s is a string that contains the return code.
-@return Returns the status of the request into an unsigned int
+@brief This function send data to the descriptor fd without a message code.
+@param fd is a descriptor generally a socket descriptor.
+@param str is the command line.
 **/
 void sock_print_nostat (int fd, char* str)
 {
@@ -108,8 +109,10 @@ void sock_print_nostat (int fd, char* str)
 /**
 @fn unsigned int line_to_cmd (const char* line, size_t readcnt, void* cmd)
 @brief This function gets the status of a request
-@param s is a string that contains the return code.
-@return Returns the status of the request into an unsigned int
+@param line is a string that contains the command line.
+@param readcnt is the number of characters  in the command line.
+@param cmd is a pointor which will contain the line without the command.
+@return Returns a code corresponding about what command it is.
 **/
 unsigned int line_to_cmd (const char* line, size_t readcnt, void* cmd)
 {
