@@ -1,3 +1,10 @@
+/**
+@file server.c
+@brief This file contains the main function of our server.
+@author Moritz FISCHER & Thibault MERLE
+@version 1.0
+@date 10-11-2011
+**/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,14 +22,21 @@
 #include "utils.h"
 #include "handlers.h"
 
-void
-print_header (void)
+/**
+@fn void print_header (void)
+@brief This function is the command "cd" executed on the server. 
+**/
+void print_header (void)
 {
 	printf ("Trying to start server with pid %u on %s:%u ...\n", getpid (), "0.0.0.0", CMD_PORT);
 }
 
-void
-handle_client_connection (int connfd)
+/**
+@fn void handle_client_connection (int connfd)
+@brief This function etablishes a control connection between the client and the server. 
+@param connfd is a socket descriptor of the client where data are sent.
+**/
+void handle_client_connection (int connfd)
 {
 	char readbuf[MAXLINE + 1];
 
@@ -115,8 +129,15 @@ handle_client_connection (int connfd)
 	return;
 }
 
-int
-main (int argc, char** argv)
+/**
+@fn int main (int argc, char** argv)
+@brief This is the main function of the server. He takes one parameter which is the program, so it's: myftpd\n
+We wait the client at the port 7000 and we do a fork when there is one.
+@param argc must be set at 1.
+@param argv must contain one string which is myftpd .
+@return Returns 0 if no problem encountered.
+**/
+int main (int argc, char** argv)
 {
 	/* Shut up the compiler ... */
 	(void) argc;
