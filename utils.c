@@ -79,7 +79,7 @@ size_t our_readline (char* readbuf, int connfd)
 
 /**
 @fn void sock_print (int fd, uint16_t code, char* str)
-@brief This function send data to the descriptor fd with a message code.
+@brief This function sends data to the descriptor fd with a message code.
 @param fd is a descriptor generally a socket descriptor.
 @param code is a number that shows about what commands is sent.
 @param str is the rest of the command without the command name.
@@ -94,7 +94,7 @@ void sock_print (int fd, uint16_t code, char* str)
 
 /**
 @fn void sock_print_nostat (int fd, char* str)
-@brief This function send data to the descriptor fd without a message code.
+@brief This function sends data to the descriptor fd without a message code.
 @param fd is a descriptor generally a socket descriptor.
 @param str is the command line.
 **/
