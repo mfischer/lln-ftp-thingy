@@ -1,3 +1,10 @@
+/**
+@file handlers.c
+@brief This file contains the definition of all the command implementted by the server.
+@author Moritz FISCHER & Thibault MERLE
+@version 1.0
+@date 10-11-2011
+**/
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -13,15 +20,25 @@
 #include "constants.h"
 #include "utils.h"
 
-void
-syst_handler (int connfd)
+/**
+@fn void syst_handler (int connfd)
+@brief This function sends ... .
+@param connfd is a socket descriptor where we write the message code.
+**/
+void syst_handler (int connfd)
 {
 	sock_print (connfd, FTP_SYST, FTP_SYST_RESP_STR);
 	printf ("[DEBUG] SYST handler\n");
 }
 
-void
-port_handler (int connfd, void* cmdptr, int* datafd)
+/**
+@fn void port_handler (int connfd, void* cmdptr, int* datafd)
+@brief This function connects to a client.
+@param connfd is a socket descriptor where we write our message.
+@param cmpdtr is a structure which contains the prot of the client and its address.
+@param datafd is a new descriptor with the etablishment of the data connection.
+**/
+void port_handler (int connfd, void* cmdptr, int* datafd)
 {
 	printf ("[DEBUG] PORT handler\n");
 	cmd_port_t* tmp = (cmd_port_t*) cmdptr;
@@ -46,8 +63,13 @@ port_handler (int connfd, void* cmdptr, int* datafd)
 	sock_print (connfd, FTP_CMD_OK, FTP_CMD_OK_STR);
 }
 
-void
-list_handler (int datafd, int connfd)
+/**
+@fn void list_handler (int datafd, int connfd)
+@brief This function is the command "ls" executed on the server.
+@param datafd is ... .
+@param connfd is a socket descriptor of the client where data are sent.
+**/
+void list_handler (int datafd, int connfd)
 {
 	printf ("[DEBUG] LIST handler\n");
 	sock_print (connfd, FTP_FILE_STATUS_OK_OPEN_CONN, FTP_FILE_STATUS_OK_OPEN_CONN_STR);
@@ -67,8 +89,13 @@ list_handler (int datafd, int connfd)
 	sock_print (connfd, FTP_FINISHED_CLOSING, FTP_FINISHED_CLOSING_STR);
 }
 
-void
-pwd_handler (int datafd, int connfd)
+/**
+@fn void pwd_handler (int datafd, int connfd)
+@brief This function is the command pwd executed on the server.
+@param datafd is ... .
+@param connfd is a socket descriptor of the client where data are sent.
+**/
+void pwd_handler (int datafd, int connfd)
 {
 	printf ("[DEBUG] PWD handler\n");
 	char tmp[MAXLINE];
@@ -77,17 +104,28 @@ pwd_handler (int datafd, int connfd)
 	close (datafd);
 }
 
-
-void
-quit_handler (int datafd, int connfd)
+/**
+@fn void quit_handler (int datafd, int connfd)
+@brief This function is the command "bye" executed on the server.
+@param datafd is ... .
+@param connfd is a socket descriptor of the client where data are sent.
+**/
+void quit_handler (int datafd, int connfd)
 {
 	printf ("[DEBUG/TODO] QUIT handler\n");
+	sock_print(connfd, FTP_BYE, FTP_BYE_STR);
 	close (connfd);
 	_exit (0);
 }
 
-void
-stor_handler (int datafd, void* cmdptr, int connfd)
+/**
+@fn void stor_handler (int datafd, void* cmdptr, int connfd)
+@brief This function is the command "put" executed on the server. A file is sent to the server.
+@param datafd is ... .
+@param cmdptr is a structure containing the path of the file.
+@param connfd is a socket descriptor of the client where data are sent.
+**/
+void stor_handler (int datafd, void* cmdptr, int connfd)
 {
 	cmd_stor_t* tmp = (cmd_stor_t *) cmdptr;
 	sock_print (connfd, FTP_FILE_STATUS_OK_OPEN_CONN, FTP_FILE_STATUS_OK_OPEN_CONN_STR);
@@ -119,8 +157,14 @@ stor_handler (int datafd, void* cmdptr, int connfd)
 	}
 }
 
-void
-retr_handler (int datafd, void* cmdptr, int connfd)
+/**
+@fn void stor_handler (int datafd, void* cmdptr, int connfd)
+@brief This function is the command "get" executed on the server. A file is sent to the client.
+@param datafd is ... .
+@param cmdptr is a structure containing the path of the file.
+@param connfd is a socket descriptor of the client where data are sent.
+**/
+void retr_handler (int datafd, void* cmdptr, int connfd)
 {
 	printf ("[DEBUG/TODO] RETR handler\n");
 	char buf[MAXLINE];
@@ -149,6 +193,13 @@ retr_handler (int datafd, void* cmdptr, int connfd)
 
 }
 
+/**
+@fn void cwd_handler (int datafd, void* cmdptr, int connfd)
+@brief This function is the command "cd" executed on the server. 
+@param datafd is ... .
+@param cmdptr is a structure containing the path of the new current directory.
+@param connfd is a socket descriptor of the client where data are sent.
+**/
 void cwd_handler (int datafd, void* cmdptr, int connfd)
 {
 	printf ("[DEBUG] CWD handler\n");
@@ -159,7 +210,11 @@ void cwd_handler (int datafd, void* cmdptr, int connfd)
   	chdir (tmp->path);
 }
 
-
+/**
+@fn void not_implemented_handler (int connfd)
+@brief This function sends to the client that the command given is not implemented. So it returns an error. 
+@param connfd is a socket descriptor of the client where data are sent.
+**/
 void not_implemented_handler (int connfd)
 {
 	printf ("[DEBUG]: NOT_IMPLEMENTED_HANDLER handler\n");

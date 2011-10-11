@@ -1,8 +1,18 @@
+/**
+@file constants.h
+@brief This file contains constants used through the application.
+@author Moritz FISCHER & Thibault MERLE
+@version 1.0
+@date 10-11-2011
+**/
 #ifndef CODES_H
 #define CODES_H
 
 #define FTP_READY 220
 #define FTP_READY_STR "Welcome, FTP Server ready."
+
+#define FTP_BYE 221
+#define FTP_BYE_STR "KthxBai"
 
 #define FTP_CMD_OK 200
 #define FTP_CMD_OK_STR "Command ok."
