@@ -22,8 +22,8 @@
 
 /**
 @fn void syst_handler (int connfd)
-@brief This function displays the error message and exits the program.
-@param err_msg is a string that contains the error message.
+@brief This function sends ... .
+@param connfd is a socket descriptor where we write the message code.
 **/
 void syst_handler (int connfd)
 {
@@ -33,8 +33,10 @@ void syst_handler (int connfd)
 
 /**
 @fn void port_handler (int connfd, void* cmdptr, int* datafd)
-@brief This function displays the error message and exits the program.
-@param err_msg is a string that contains the error message.
+@brief This function connects to a client.
+@param connfd is a socket descriptor where we write our message.
+@param cmpdtr is a structure which contains the prot of the client and its address.
+@param datafd is a new descriptor with the etablishment of the data connection.
 **/
 void port_handler (int connfd, void* cmdptr, int* datafd)
 {
@@ -63,8 +65,9 @@ void port_handler (int connfd, void* cmdptr, int* datafd)
 
 /**
 @fn void list_handler (int datafd, int connfd)
-@brief This function displays the error message and exits the program.
-@param err_msg is a string that contains the error message.
+@brief This function is the command "ls" executed on the server.
+@param datafd is ... .
+@param connfd is a socket descriptor of the client where data are sent.
 **/
 void list_handler (int datafd, int connfd)
 {
@@ -88,8 +91,9 @@ void list_handler (int datafd, int connfd)
 
 /**
 @fn void pwd_handler (int datafd, int connfd)
-@brief This function displays the error message and exits the program.
-@param err_msg is a string that contains the error message.
+@brief This function is the command pwd executed on the server.
+@param datafd is ... .
+@param connfd is a socket descriptor of the client where data are sent.
 **/
 void pwd_handler (int datafd, int connfd)
 {
@@ -102,8 +106,9 @@ void pwd_handler (int datafd, int connfd)
 
 /**
 @fn void quit_handler (int datafd, int connfd)
-@brief This function displays the error message and exits the program.
-@param err_msg is a string that contains the error message.
+@brief This function is the command "bye" executed on the server.
+@param datafd is ... .
+@param connfd is a socket descriptor of the client where data are sent.
 **/
 void quit_handler (int datafd, int connfd)
 {
@@ -115,8 +120,10 @@ void quit_handler (int datafd, int connfd)
 
 /**
 @fn void stor_handler (int datafd, void* cmdptr, int connfd)
-@brief This function displays the error message and exits the program.
-@param err_msg is a string that contains the error message.
+@brief This function is the command "put" executed on the server. A file is sent to the server.
+@param datafd is ... .
+@param cmdptr is a structure containing the path of the file.
+@param connfd is a socket descriptor of the client where data are sent.
 **/
 void stor_handler (int datafd, void* cmdptr, int connfd)
 {
@@ -151,9 +158,11 @@ void stor_handler (int datafd, void* cmdptr, int connfd)
 }
 
 /**
-@fn void retr_handler (int datafd, void* cmdptr, int connfd)
-@brief This function displays the error message and exits the program.
-@param err_msg is a string that contains the error message.
+@fn void stor_handler (int datafd, void* cmdptr, int connfd)
+@brief This function is the command "get" executed on the server. A file is sent to the client.
+@param datafd is ... .
+@param cmdptr is a structure containing the path of the file.
+@param connfd is a socket descriptor of the client where data are sent.
 **/
 void retr_handler (int datafd, void* cmdptr, int connfd)
 {
@@ -186,8 +195,10 @@ void retr_handler (int datafd, void* cmdptr, int connfd)
 
 /**
 @fn void cwd_handler (int datafd, void* cmdptr, int connfd)
-@brief This function displays the error message and exits the program.
-@param err_msg is a string that contains the error message.
+@brief This function is the command "cd" executed on the server. 
+@param datafd is ... .
+@param cmdptr is a structure containing the path of the new current directory.
+@param connfd is a socket descriptor of the client where data are sent.
 **/
 void cwd_handler (int datafd, void* cmdptr, int connfd)
 {
@@ -201,8 +212,8 @@ void cwd_handler (int datafd, void* cmdptr, int connfd)
 
 /**
 @fn void not_implemented_handler (int connfd)
-@brief This function displays the error message and exits the program.
-@param err_msg is a string that contains the error message.
+@brief This function sends to the client that the command given is not implemented. So it returns an error. 
+@param connfd is a socket descriptor of the client where data are sent.
 **/
 void not_implemented_handler (int connfd)
 {
