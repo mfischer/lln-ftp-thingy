@@ -90,7 +90,7 @@ int init_data_connection (int connfd, unsigned int port)
 
 /**
 @fn void data_transfer (int listenfd, int connfd, int outfd, char* buf)
-@brief This function inits the data connection between the server and the client.\n		
+@brief This function is used to transfer data between the server and the client.	
 @param listenfd is the descriptor of the server. We read its response here.
 @param connfd is useless. #Must be deleted#
 @param outfd is the descriptor to write the response on the shell.
@@ -115,7 +115,7 @@ void data_transfer (int listenfd, int connfd, int outfd, char* buf)
 
 /**
 @fn char * prompt(EditLine *e)
-@brief This function is only the prompt that you can see at the beginning of each line		
+@brief This function is only the prompt that you can see at the beginning of each line.		
 @param e is HELP I DON T KNOW WHAT IS IT. 
 @return Returns the prompt which is ftp>.
 **/

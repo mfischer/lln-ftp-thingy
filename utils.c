@@ -1,3 +1,10 @@
+/**
+@file utils.c
+@brief This file contains functions which is used both by the server and the client.
+@author Moritz FISCHER & Thibault MERLE
+@version 1.0
+@date 10-11-2011
+**/
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,27 +14,51 @@
 #include "utils.h"
 #include "constants.h"
 
-void
-exit_error (const char *err_msg)
+/**
+@fn void exit_error (const char *err_msg)
+@brief This function displays the error message and exits the program.
+@param err_msg is a string that contains the error message.
+**/
+void exit_error (const char *err_msg)
 {
 	printf ("Error: %s\n", err_msg);
 	exit (EXIT_FAILURE);
 }
 
-inline unsigned int
-get_client_port (const unsigned int p1,
-		             const unsigned int p2)
+/**
+@fn inline unsigned int get_client_port (const unsigned int p1, const unsigned int p2)
+@brief This function gets the client port number from the port p1 and p2. It's in the protocol ftp85.
+@param p1 is a port number.
+@param p2 is another port number.
+@return Returns the port number of the client.
+**/
+inline 
+unsigned int get_client_port (const unsigned int p1,
+		             				const unsigned int p2)
 {
 	return p1*256+p2;
 }
 
-void
-generate_client_ports (unsigned int* p1, unsigned int* p2, unsigned int p)
+/**
+@fn void generate_client_ports (unsigned int* p1, unsigned int* p2, unsigned int p)
+@brief This function generates following the protocol ftp85 p1 and p2.
+@param p1 is a pointor that will be filled.
+@param p2 is a pointor that will be filled.
+@param p is the port number of the client.
+**/
+void generate_client_ports (unsigned int* p1, unsigned int* p2, unsigned int p)
 {
 	*p1 = p / 256;
 	*p2 = p % 256;
 }
 
+/**
+@fn size_t our_readline (char* readbuf, int connfd)
+@brief This function reads data of a line from a descriptor and put the data read into the buffer readbuf.
+@param readbuf is a buffer that contains data.
+@param connfd is a descriptor of socket.
+@return Returns the number of characters read.
+**/
 size_t our_readline (char* readbuf, int connfd)
 {
 	size_t readcnt = 0;
@@ -46,7 +77,12 @@ size_t our_readline (char* readbuf, int connfd)
 	return readcnt;
 }
 
-/* */
+/**
+@fn void sock_print (int fd, uint16_t code, char* str)
+@brief This function gets the status of a request
+@param s is a string that contains the return code.
+@return Returns the status of the request into an unsigned int
+**/
 void sock_print (int fd, uint16_t code, char* str)
 {
 	char buffer[MAXLINE + 1];
@@ -55,8 +91,13 @@ void sock_print (int fd, uint16_t code, char* str)
 	write (fd, (const void*) buffer, strlen (buffer));
 }
 
-void
-sock_print_nostat (int fd, char* str)
+/**
+@fn void sock_print_nostat (int fd, char* str)
+@brief This function gets the status of a request
+@param s is a string that contains the return code.
+@return Returns the status of the request into an unsigned int
+**/
+void sock_print_nostat (int fd, char* str)
 {
 	char buffer[MAXLINE + 1];
 	memset (buffer, 0, sizeof (buffer));
@@ -64,8 +105,13 @@ sock_print_nostat (int fd, char* str)
 	write (fd, (const void*) buffer, strlen (buffer));
 }
 
-unsigned int
-line_to_cmd (const char* line, size_t readcnt, void* cmd)
+/**
+@fn unsigned int line_to_cmd (const char* line, size_t readcnt, void* cmd)
+@brief This function gets the status of a request
+@param s is a string that contains the return code.
+@return Returns the status of the request into an unsigned int
+**/
+unsigned int line_to_cmd (const char* line, size_t readcnt, void* cmd)
 {
 	if (readcnt < MAXCMD-1)
 	{
