@@ -103,7 +103,7 @@ void handle_client_connection (int connfd)
 				break;
 
 			case FTP_CMD_CWD:
-				cwd_handler (datafd, cmdptr, connfd);
+				cwd_handler (cmdptr, connfd);
 				break;
 
 			case FTP_CMD_QUIT:

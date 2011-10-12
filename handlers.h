@@ -17,7 +17,7 @@ void not_implemented_handler (int connfd);
 void quit_handler (int connfd);
 void stor_handler (int datafd, void* cmdptr, int connfd);
 void retr_handler (int datafd, void* cmdptr, int connfd);
-void cwd_handler (int datafd, void* cmdptr, int connfd);
+void cwd_handler (void* cmdptr, int connfd);
 
 
 #endif /* HANDLERS_H */

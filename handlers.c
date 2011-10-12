@@ -192,12 +192,11 @@ void retr_handler (int datafd, void* cmdptr, int connfd)
 
 /**
 @fn void cwd_handler (int datafd, void* cmdptr, int connfd)
-@brief This function is the command "cd" executed on the server. 
-@param datafd is ... .
-@param cmdptr is a structure containing the path of the new current directory.
-@param connfd is a socket descriptor of the client where data are sent.
+@brief This function handles the CWD command.
+@param cmdptr is a structure containing the parameters for the CWD cmd (path to change to).
+@param connfd is the socket descriptor for the control connection.
 **/
-void cwd_handler (int datafd, void* cmdptr, int connfd)
+void cwd_handler (void* cmdptr, int connfd)
 {
 	printf ("[DEBUG] CWD handler\n");
 
