@@ -101,7 +101,6 @@ void pwd_handler (int datafd, int connfd)
 	char tmp[MAXLINE];
     getcwd (tmp, (size_t) MAXLINE);	
 	sock_print (connfd, FTP_CMD_OK, tmp);
-	close (datafd);
 }
 
 /**
