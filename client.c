@@ -28,7 +28,7 @@
 @fn unsigned int response_to_status (const char* s)
 @brief This function extracts the status code from a given line.
 @param s is a string that contains the server's response as a line.
-@return Returns the status of the request into as unsigned int,
+@return the status of the request as unsigned int,
         that can be compared to the constants defined in "constants.h"
 **/
 unsigned int response_to_status (const char* s)
@@ -101,15 +101,13 @@ int init_data_connection (int connfd)
 }
 
 /**
-@fn void data_transfer (int listenfd, int connfd, int outfd, char* buf)
+@fn void data_transfer (int listenfd, int outfd, char* buf)
 @brief This function is used to transfer data between the server and the client.	
-@param listenfd is the descriptor of the server. We read its response here.
-@param connfd is useless. #Must be deleted#
-@param outfd is the descriptor to write the response on the shell.
-@param buf is used like a buffer to transfer data.
-@return Returns the new descriptor of the data connection in order to write to the server.
+@param listenfd is the descriptor from which we read.
+@param outfd is the descriptor to write to.
+@param buf is used as a buffer to transfer data.
 **/
-void data_transfer (int listenfd, int connfd, int outfd, char* buf)
+void data_transfer (int listenfd, int outfd, char* buf)
 {
 	ssize_t len;
 	for(;;)
@@ -125,23 +123,10 @@ void data_transfer (int listenfd, int connfd, int outfd, char* buf)
 	}
 }
 
-/**
-@fn char * prompt(EditLine *e)
-@brief This function is only the prompt that you can see at the beginning of each line.		
-@param e is HELP I DON T KNOW WHAT IS IT. 
-@return Returns the prompt which is ftp>.
-**/
 char * prompt(EditLine *e) {
   return "ftp> ";
 }
 
-/**
-@fn int main(int argc, char** argv)
-@brief It's the main function which runs all the client.
-@param argc must take the value 2 to succeded the run.
-@param argv must contains the name of the program "myftp" and the IP address of the server.
-@return Returns 0 if the program succeded.
-**/
 int main(int argc, char** argv) 
 {
 	int connfd;
@@ -248,7 +233,7 @@ int main(int argc, char** argv)
 				our_readline (buf, connfd);
 				if (response_to_status (buf) != FTP_FILE_STATUS_OK_OPEN_CONN)
 					printf ("[DEBUG] Status: %u\n", response_to_status (buf));
-				data_transfer (listenfd, connfd, 1, buf);
+				data_transfer (listenfd, 1, buf);
 				our_readline (buf, connfd);
 				if (response_to_status (buf) != FTP_FINISHED_CLOSING)
 					printf ("[DEBUG] Status: %u\n", response_to_status (buf));
@@ -316,7 +301,7 @@ int main(int argc, char** argv)
 
 					printf ("[DEBUG] Starting datatransfer\n");
 				#endif
-				data_transfer (listenfd, connfd, f, buf);
+				data_transfer (listenfd, f, buf);
 				close (f);
 				our_readline (buf, connfd);
 				if (response_to_status (buf) == FTP_FINISHED_CLOSING)
@@ -343,7 +328,7 @@ int main(int argc, char** argv)
 				if (response_to_status (buf) != FTP_FILE_STATUS_OK_OPEN_CONN)
 					printf ("[DEBUG] Status: %u\n", response_to_status (buf));
 
-				data_transfer (f, connfd, listenfd, buf);
+				data_transfer (f,listenfd, buf);
 				/* Cleanup ... */
 				close (f);
 				close (listenfd);

@@ -1,6 +1,6 @@
 /**
 @file handlers.c
-@brief This file contains the definition of all the command implementted by the server.
+@brief This file contains the definition of all serverside commands.
 @author Moritz FISCHER & Thibault MERLE
 @version 1.0
 @date 10-11-2011

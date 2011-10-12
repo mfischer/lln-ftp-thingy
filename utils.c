@@ -1,6 +1,6 @@
 /**
 @file utils.c
-@brief This file contains functions which are used both by the server and the client.
+@brief This file contains functions used by the server and the client.
 @author Moritz FISCHER & Thibault MERLE
 @version 1.0
 @date 10-11-2011
@@ -19,7 +19,8 @@
 @brief This function displays the error message and exits the program.
 @param err_msg is a string that contains the error message.
 **/
-void exit_error (const char *err_msg)
+void
+exit_error (const char *err_msg)
 {
 	printf ("Error: %s\n", err_msg);
 	exit (EXIT_FAILURE);
@@ -27,10 +28,11 @@ void exit_error (const char *err_msg)
 
 /**
 @fn inline unsigned int get_client_port (const unsigned int p1, const unsigned int p2)
-@brief This function gets the client port number from the port p1 and p2. It's in the protocol ftp85.
-@param p1 is a port number.
-@param p2 is another port number.
-@return Returns the port number of the client.
+@brief This function gets the client port number from the port p1 and p2.
+       The definition can be obtained from the RFC959.
+@param p1 equals the actual port / 256
+@param p2 equals the actual port % 256
+@return the actual port number of the client.
 **/
 inline 
 unsigned int get_client_port (const unsigned int p1,
@@ -41,12 +43,13 @@ unsigned int get_client_port (const unsigned int p1,
 
 /**
 @fn void generate_client_ports (unsigned int* p1, unsigned int* p2, unsigned int p)
-@brief This function generates following the protocol ftp85 p1 and p2.
-@param p1 is a pointor that will be filled.
-@param p2 is a pointor that will be filled.
-@param p is the port number of the client.
+@brief This function generates p1 and p2 as specified in RFC959 when given the actual port p.
+@param p1 will be overwritten by the value for p1.
+@param p2 will be overwritten by the value for p2.
+@param p is the actual port number of the client.
 **/
-void generate_client_ports (unsigned int* p1, unsigned int* p2, unsigned int p)
+void
+generate_client_ports (unsigned int* p1, unsigned int* p2, unsigned int p)
 {
 	*p1 = p / 256;
 	*p2 = p % 256;
@@ -54,12 +57,13 @@ void generate_client_ports (unsigned int* p1, unsigned int* p2, unsigned int p)
 
 /**
 @fn size_t our_readline (char* readbuf, int connfd)
-@brief This function reads data of a line from a descriptor and put the data read into the buffer readbuf.
-@param readbuf is a buffer that contains data.
-@param connfd is a descriptor of socket.
-@return Returns the number of characters read.
+@brief This function reads a line from a socket/file descriptor into the buffer readbuf.
+@param readbuf is a buffer to store the data we're about to read.
+@param connfd is a socket descriptor / file descriptor.
+@return the number of characters / bytes read.
 **/
-size_t our_readline (char* readbuf, int connfd)
+size_t
+our_readline (char* readbuf, int connfd)
 {
 	size_t readcnt = 0;
 	memset (readbuf, 0, sizeof (readbuf));
@@ -79,12 +83,13 @@ size_t our_readline (char* readbuf, int connfd)
 
 /**
 @fn void sock_print (int fd, uint16_t code, char* str)
-@brief This function sends data to the descriptor fd with a message code.
-@param fd is a descriptor generally a socket descriptor.
-@param code is a number that shows about what commands is sent.
-@param str is the rest of the command without the command name.
+@brief This function writes data to the descriptor fd prefixed by a message code.
+@param fd is a descriptor usually a socket descriptor.
+@param code is a FTP return code, see constans.h.
+@param str contains the command string, e.g. "Command Ok"
 **/
-void sock_print (int fd, uint16_t code, char* str)
+void
+sock_print (int fd, uint16_t code, char* str)
 {
 	char buffer[MAXLINE + 1];
 	memset (buffer, 0, sizeof (buffer));
@@ -94,11 +99,12 @@ void sock_print (int fd, uint16_t code, char* str)
 
 /**
 @fn void sock_print_nostat (int fd, char* str)
-@brief This function sends data to the descriptor fd without a message code.
-@param fd is a descriptor generally a socket descriptor.
-@param str is the command line.
+@brief This function sends data to the descriptor fd without a status code.
+@param fd is a descriptor usually a socket descriptor.
+@param str contains the data to send.
 **/
-void sock_print_nostat (int fd, char* str)
+void
+sock_print_nostat (int fd, char* str)
 {
 	char buffer[MAXLINE + 1];
 	memset (buffer, 0, sizeof (buffer));
@@ -108,13 +114,14 @@ void sock_print_nostat (int fd, char* str)
 
 /**
 @fn unsigned int line_to_cmd (const char* line, size_t readcnt, void* cmd)
-@brief This function gets the status of a request
-@param line is a string that contains the command line.
+@brief This function converts a line to a cmd struct.
+@param line is the string that contains the command line.
 @param readcnt is the number of characters  in the command line.
-@param cmd is a pointor which will contain the line without the command.
-@return Returns a code corresponding about what command it is.
+@param cmd will contain the cmd struct with the parameters.
+@return one of the FTP_CMD_* constants, see constants.h
 **/
-unsigned int line_to_cmd (const char* line, size_t readcnt, void* cmd)
+unsigned int
+line_to_cmd (const char* line, size_t readcnt, void* cmd)
 {
 	if (readcnt < MAXCMD-1)
 	{

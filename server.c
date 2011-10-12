@@ -24,7 +24,7 @@
 
 /**
 @fn void print_header (void)
-@brief This function is the command "cd" executed on the server. 
+@brief This function prints the status message, when the server starts.
 **/
 void print_header (void)
 {
@@ -33,8 +33,8 @@ void print_header (void)
 
 /**
 @fn void handle_client_connection (int connfd)
-@brief This function etablishes a control connection between the client and the server. 
-@param connfd is a socket descriptor of the client where data are sent.
+@brief This function handles a client connection.
+@param connfd is the connected socket between client and server, the control connection.
 **/
 void handle_client_connection (int connfd)
 {
@@ -129,14 +129,6 @@ void handle_client_connection (int connfd)
 	return;
 }
 
-/**
-@fn int main (int argc, char** argv)
-@brief This is the main function of the server. He takes one parameter which is the program, so it's: myftpd\n
-We wait the client at the port 7000 and we do a fork when there is one.
-@param argc must be set at 1.
-@param argv must contain one string which is myftpd .
-@return Returns 0 if no problem encountered.
-**/
 int main (int argc, char** argv)
 {
 	/* Shut up the compiler ... */
