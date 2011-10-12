@@ -22,8 +22,8 @@
 
 /**
 @fn void syst_handler (int connfd)
-@brief This function sends ... .
-@param connfd is a socket descriptor where we write the message code.
+@brief This function handles the SYST request.
+@param connfd is the socket descriptor for the control connection.
 **/
 void syst_handler (int connfd)
 {
@@ -33,10 +33,10 @@ void syst_handler (int connfd)
 
 /**
 @fn void port_handler (int connfd, void* cmdptr, int* datafd)
-@brief This function connects to a client.
-@param connfd is a socket descriptor where we write our message.
-@param cmpdtr is a structure which contains the prot of the client and its address.
-@param datafd is a new descriptor with the etablishment of the data connection.
+@brief This function handles the PORT request.
+@param connfd is the socket descriptor for the control connection.
+@param cmpdtr contains the parameters to the PORT command, namely the port and the ip address.
+@param datafd is the socket descriptor for the newly created data connection.
 **/
 void port_handler (int connfd, void* cmdptr, int* datafd)
 {
@@ -65,9 +65,9 @@ void port_handler (int connfd, void* cmdptr, int* datafd)
 
 /**
 @fn void list_handler (int datafd, int connfd)
-@brief This function is the command "ls" executed on the server.
-@param datafd is ... .
-@param connfd is a socket descriptor of the client where data are sent.
+@brief This function handles the LIST request.
+@param datafd is the socket descriptor of the (already open) data connection.
+@param connfd is the socket descriptor for the control connection.
 **/
 void list_handler (int datafd, int connfd)
 {
@@ -117,10 +117,11 @@ void quit_handler (int connfd)
 
 /**
 @fn void stor_handler (int datafd, void* cmdptr, int connfd)
-@brief This function is the command "put" executed on the server. A file is sent to the server.
-@param datafd is ... .
-@param cmdptr is a structure containing the path of the file.
-@param connfd is a socket descriptor of the client where data are sent.
+@brief This function handles the STOR request, by reading data from the data connection,
+       writing the data to a file.
+@param cmdptr is a structure containing the parameters for the STOR cmd (path of the file).
+@param datafd is the socket descriptor of the (already open) data connection.
+@param connfd is the socket descriptor for the control connection.
 **/
 void stor_handler (int datafd, void* cmdptr, int connfd)
 {
@@ -155,11 +156,11 @@ void stor_handler (int datafd, void* cmdptr, int connfd)
 }
 
 /**
-@fn void stor_handler (int datafd, void* cmdptr, int connfd)
-@brief This function is the command "get" executed on the server. A file is sent to the client.
-@param datafd is ... .
-@param cmdptr is a structure containing the path of the file.
-@param connfd is a socket descriptor of the client where data are sent.
+@fn void retr_handler (int datafd, void* cmdptr, int connfd)
+@brief This function handles the RETR request by reading a file and writing it to the data connection.
+@param cmdptr is a structure containing the parameters for the RETR cmd (path of the file).
+@param datafd is the socket descriptor of the (already open) data connection.
+@param connfd is the socket descriptor for the control connection.
 **/
 void retr_handler (int datafd, void* cmdptr, int connfd)
 {
@@ -208,8 +209,8 @@ void cwd_handler (void* cmdptr, int connfd)
 
 /**
 @fn void not_implemented_handler (int connfd)
-@brief This function sends to the client that the command given is not implemented. So it returns an error. 
-@param connfd is a socket descriptor of the client where data are sent.
+@brief This function handles all the commands we do not have implemented or do not understand.
+@param connfd is the socket descriptor for the control connection.
 **/
 void not_implemented_handler (int connfd)
 {

@@ -26,9 +26,10 @@
 
 /**
 @fn unsigned int response_to_status (const char* s)
-@brief This function gets the status of a request
-@param s is a string that contains the return code.
-@return Returns the status of the request into an unsigned int
+@brief This function extracts the status code from a given line.
+@param s is a string that contains the server's response as a line.
+@return Returns the status of the request into as unsigned int,
+        that can be compared to the constants defined in "constants.h"
 **/
 unsigned int response_to_status (const char* s)
 {
@@ -38,14 +39,13 @@ unsigned int response_to_status (const char* s)
 }
 
 /**
-@fn int init_data_connection (int connfd, unsigned int port)
-@brief This function inits the data connection between the server and the client.\n
-		---------------------------Must be completed-------------------------------
-@param connfd is a descriptor of the socket connection to the server.
-@param port is the port's number to wait a response of the server.
-@return Returns the new descriptor of the data connection in order to write to the server.
+@fn int init_data_connection (int connfd)
+@brief Initialises a data connection between the server and the client.
+@param connfd is the socket descriptor used as control
+       connection used to exchange status information)
+@return the new descriptor of the established data connection.
 **/
-int init_data_connection (int connfd, unsigned int port)
+int init_data_connection (int connfd)
 {
 
 	/* Set up the stuff for the data connection */
@@ -53,10 +53,8 @@ int init_data_connection (int connfd, unsigned int port)
 	memset ((char *) &myaddr, 0, sizeof(myaddr));
 	myaddr.sin_family      = AF_INET;
 	myaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-	myaddr.sin_port        = htons(0);
-
 	/* We bind to a random port by setting sin_port to 0 */
-	(void) port;
+	myaddr.sin_port        = htons(0);
 
 	int listenfd;
 	int newfd;
@@ -240,7 +238,7 @@ int main(int argc, char** argv)
 			else if (!strncmp (cmd, "ls", 2))
 			{
 				/* FIXME: This should be a random port */
-				int listenfd = init_data_connection (connfd, 1024 + rand());
+				int listenfd = init_data_connection (connfd);
 				char buf[MAXLINE];
 
 				sprintf (buf, "LIST %s", args);
@@ -292,7 +290,7 @@ int main(int argc, char** argv)
 			}
 			else if (!strncmp (cmd, "get", 3))
 			{
-				int listenfd = init_data_connection (connfd, 1024 + rand ());
+				int listenfd = init_data_connection (connfd);
 				char buf[MAXLINE];
 				char args[MAXPATH];
 				/* We can do the +4 stuff, as we know the command was "get" */
@@ -326,7 +324,7 @@ int main(int argc, char** argv)
 			}
 			else if (!strncmp (cmd, "put", 4))
 			{
-				int listenfd = init_data_connection (connfd, 1024 + rand ());
+				int listenfd = init_data_connection (connfd);
 				char buf[MAXLINE];
 
 				char args[MAXPATH];

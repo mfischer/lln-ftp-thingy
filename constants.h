@@ -1,12 +1,12 @@
 /**
 @file constants.h
-@brief This file contains constants used through the application.
+@brief This file contains the constants used in the application.
 @author Moritz FISCHER & Thibault MERLE
 @version 1.0
 @date 10-11-2011
 **/
-#ifndef CODES_H
-#define CODES_H
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
 
 #define FTP_READY 220
 #define FTP_READY_STR "Welcome, FTP Server ready."
@@ -88,15 +88,14 @@
 
 
 /**
-
 @union cmd 
-@brief Contains all kinds of commands implemented by the server.
+@brief This union is used to store the different possible commands including their parameters.
 **/
 union cmd
 {
 	/**
 	@struct cmd_user
-	@brief Command containing the username.
+	@brief USER command containing the username.
 	**/	
 	struct cmd_user
 	{
@@ -105,7 +104,7 @@ union cmd
 	
 	/**
 	@struct cmd_pass
-	@brief Command containing the password.
+	@brief PASS command containing the password.
 	**/	
 	struct cmd_pass
 	{
@@ -114,7 +113,7 @@ union cmd
 	
 	/**
 	@struct cmd_port
-	@brief Command containing the port number and IP address.
+	@brief PORT command containing the port number and IP address.
 	**/	
 	struct cmd_port
 	{
@@ -124,8 +123,7 @@ union cmd
 	
 	/**
 	@struct cmd_port
-	@brief Command containing information about the command put.\n
-	We have the path of the file.
+	@brief PUT command containing information where to store the file.
 	**/	
 	struct cmd_stor
 	{
@@ -134,8 +132,7 @@ union cmd
 	
 	/**
 	@struct cmd_retr
-	@brief Command containing information about the command get.\n
-	We have the path of the file.
+	@brief GET command containing information about the path of the file to retrieve.
 	**/	
 	struct cmd_retr
 	{
@@ -144,8 +141,7 @@ union cmd
 	
 	/**
 	@struct cmd_cwd
-	@brief Command containing information about the command cd.\n
-	We have the path of the new directory.
+	@brief CWD command containing the path to change to.
 	**/	
 	struct cmd_cwd
 	{
@@ -161,4 +157,4 @@ typedef struct cmd_stor cmd_stor_t;
 typedef struct cmd_retr cmd_retr_t;
 typedef struct cmd_cwd cmd_cwd_t;
 
-#endif /* CODES_H */
+#endif /* CONSTANTS_H */

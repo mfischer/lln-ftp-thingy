@@ -25,12 +25,15 @@ utils.o: utils.c utils.h constants.h
 handlers.o: handlers.c utils.h constants.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
+doc: utils.h constants.h handlers.h client.c server.c
+	doxygen $^
 
 .PHONY: clean
 clean:
 	clear	
 	rm *.o
 	rm $(EXEC)
+	rm -r html latex
 
 .PHONY: mrproper
 mrproper: clean
