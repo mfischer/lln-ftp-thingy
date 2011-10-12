@@ -90,7 +90,7 @@ void list_handler (int datafd, int connfd)
 }
 
 /**
-@fn void pwd_handler (int datafd, int connfd)
+@fn void pwd_handler (int connfd)
 @brief This function handles the PWD request.
 @param connfd is the socket descriptor for the control connection.
 **/
@@ -103,7 +103,7 @@ void pwd_handler (int connfd)
 }
 
 /**
-@fn void quit_handler (int datafd, int connfd)
+@fn void quit_handler (int connfd)
 @brief This function handles the QUIT request, by closing the control connection.
 @param connfd is the socket descriptor for the control connection.
 **/
@@ -192,7 +192,7 @@ void retr_handler (int datafd, void* cmdptr, int connfd)
 }
 
 /**
-@fn void cwd_handler (int datafd, void* cmdptr, int connfd)
+@fn void cwd_handler (void* cmdptr, int connfd)
 @brief This function handles the CWD command.
 @param cmdptr is a structure containing the parameters for the CWD cmd (path to change to).
 @param connfd is the socket descriptor for the control connection.
