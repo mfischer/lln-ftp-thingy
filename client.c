@@ -52,11 +52,12 @@ int init_data_connection (int connfd, unsigned int port)
 	struct sockaddr_in myaddr;
 	memset ((char *) &myaddr, 0, sizeof(myaddr));
 	myaddr.sin_family      = AF_INET;
-	/* FIXME: Do a getsockname and have a random port */
-	myaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-	myaddr.sin_port        = htons(port);
+	myaddr.sin_addr.s_addr = htonl(INADDR_ANY);
+	myaddr.sin_port        = htons(0);
 
-	/* We try to bind to port 9000 on any address */
+	/* We bind to a random port by setting sin_port to 0 */
+	(void) port;
+
 	int listenfd;
 	int newfd;
 	listenfd = socket (AF_INET, SOCK_STREAM, 0);
@@ -71,12 +72,25 @@ int init_data_connection (int connfd, unsigned int port)
 		exit_error("Something went wrong with listen");
 
 	socklen_t clientlen = (socklen_t) sizeof (myaddr);
+	getsockname (listenfd, (struct sockaddr *) &myaddr, &clientlen);
+	/* This will store the port we got from the OS for the data connection */
+	unsigned int tmp_port = ntohs (myaddr.sin_port);
+	/* The data connection is not yet connected,
+	 * thus we have to cheat and get the address from connfd */
+	getsockname (connfd, (struct sockaddr *) &myaddr, &clientlen);
+
+	/* FIXME: There has to be a better way than this to get h1,h2,h3,h4 ... */
+	char addrbuf[MAXIPLEN];
+	inet_ntop (AF_INET,(const void*) &myaddr.sin_addr.s_addr, (char*) addrbuf, (socklen_t) MAXIPLEN);
+	unsigned h1,h2,h3,h4;
+	sscanf (addrbuf, "%u.%u.%u.%u", &h1,&h2,&h3,&h4);
+
 	unsigned int p1, p2;
-	generate_client_ports(&p1, &p2, port);
+	generate_client_ports(&p1, &p2, tmp_port);
 	size_t size = MAXLINE;
 	char buf[MAXLINE];
-	snprintf (buf, size, "PORT %u,%u,%u,%u,%u,%u", 127, 0, 0, 1, p1, p2);
-	/*printf ("[DEBUG] %s\n", buf);*/
+
+	snprintf (buf, size, "PORT %u,%u,%u,%u,%u,%u", h1, h2, h3, h4, p1, p2);
 	sock_print_nostat (connfd, buf);
 	our_readline (buf, connfd);
 	if (FTP_CMD_OK != response_to_status (buf))
