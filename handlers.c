@@ -104,11 +104,10 @@ void pwd_handler (int connfd)
 
 /**
 @fn void quit_handler (int datafd, int connfd)
-@brief This function is the command "bye" executed on the server.
-@param datafd is ... .
-@param connfd is a socket descriptor of the client where data are sent.
+@brief This function handles the QUIT request, by closing the control connection.
+@param connfd is the socket descriptor for the control connection.
 **/
-void quit_handler (int datafd, int connfd)
+void quit_handler (int connfd)
 {
 	printf ("[DEBUG/TODO] QUIT handler\n");
 	sock_print(connfd, FTP_BYE, FTP_BYE_STR);
