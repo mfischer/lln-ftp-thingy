@@ -122,8 +122,8 @@ union cmd
   	} cmd_port;
 	
 	/**
-	@struct cmd_port
-	@brief PUT command containing information where to store the file.
+	@struct cmd_stor
+	@brief STOR command containing information where to store the file.
 	**/	
 	struct cmd_stor
 	{
@@ -132,7 +132,7 @@ union cmd
 	
 	/**
 	@struct cmd_retr
-	@brief GET command containing information about the path of the file to retrieve.
+	@brief RETR command containing information about the path of the file to retrieve.
 	**/	
 	struct cmd_retr
 	{
