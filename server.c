@@ -99,7 +99,7 @@ void handle_client_connection (int connfd)
 				break;
 
 			case FTP_CMD_PWD:
-				pwd_handler (datafd, connfd);
+				pwd_handler (connfd);
 				break;
 
 			case FTP_CMD_CWD:

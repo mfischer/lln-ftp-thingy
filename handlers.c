@@ -91,11 +91,10 @@ void list_handler (int datafd, int connfd)
 
 /**
 @fn void pwd_handler (int datafd, int connfd)
-@brief This function is the command pwd executed on the server.
-@param datafd is ... .
-@param connfd is a socket descriptor of the client where data are sent.
+@brief This function handles the PWD request.
+@param connfd is the socket descriptor for the control connection.
 **/
-void pwd_handler (int datafd, int connfd)
+void pwd_handler (int connfd)
 {
 	printf ("[DEBUG] PWD handler\n");
 	char tmp[MAXLINE];
