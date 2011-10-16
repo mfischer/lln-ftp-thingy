@@ -2,15 +2,15 @@ CC=gcc
 CFLAGS=-Wall -Werror -std=c99 -D_POSIX_C_SOURCE -g
 LDFLAGS=-ledit -lhistory
 #-ledit
-EXEC=client server
+EXEC=myftp myftpd
 
 .PHONY: all
 all: $(EXEC)
 
-client: client.o utils.o handlers.o
+myftp: client.o utils.o handlers.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
-server: server.o utils.o handlers.o
+myftpd: server.o utils.o handlers.o
 	$(CC) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 client.o: client.c utils.h constants.h
