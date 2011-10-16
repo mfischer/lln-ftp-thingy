@@ -131,7 +131,7 @@ void handle_client_connection (int connfd)
 
 int main (int argc, char** argv)
 {
-	/* Shut up the compiler ... */
+	/* Avoid compiler warnings... */
 	(void) argc;
 	(void) argv;
 	int listenfd, connfd;

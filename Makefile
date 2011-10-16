@@ -1,3 +1,4 @@
+# Moritz FISCHER & Thibault MERLE
 CC=gcc
 CFLAGS=-Wall -Werror -std=c99 -D_POSIX_C_SOURCE -g
 LDFLAGS=-ledit -lhistory
