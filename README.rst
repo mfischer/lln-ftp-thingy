@@ -32,6 +32,8 @@ Building::
   user:$ git clone git@github.com:mfischer/lln-ftp-thingy.git
   user:$ cd lln-ftp-thingy && make
 
+In case you get an error about libhistory missing, you might want to try to remove the -lhistory in the Makefile.
+
 Running::
 
   user:$ ./server
