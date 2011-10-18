@@ -220,6 +220,17 @@ int main(int argc, char** argv)
 					return EXIT_SUCCESS;
 				}
 			}
+			else if(!strncmp (cmd, "bye", 3))
+			{
+				sock_print_nostat (connfd, "QUIT");
+				our_readline (buf, connfd);
+				if (response_to_status (buf) == FTP_BYE)
+				{
+					printf ("Closing connection to server...\n");
+					close (connfd);
+					return EXIT_SUCCESS;
+				}
+			}
 			else if (!strncmp (cmd, "ls", 2))
 			{
 				/* FIXME: This should be a random port */
