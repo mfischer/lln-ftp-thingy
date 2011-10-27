@@ -173,8 +173,16 @@ int main(int argc, char** argv)
 		count = strlen (line);
 	}
 
-	unsigned int h1, h2, h3, h4;
-	sscanf (line, "%u.%u.%u.%u:%u", &h1, &h2, &h3, &h4, &tmp_port);
+	unsigned int h1, h2, h3, h4, parsecnt;
+	parsecnt = sscanf (line, "%u.%u.%u.%u:%u", &h1, &h2, &h3, &h4, &tmp_port);
+	while (parsecnt != 5)
+	{
+		printf("Try again: IP:PORT\n");
+		line = el_gets(el, &count);
+		if (count > 0)
+			history(myhistory, &ev, H_ENTER, line);
+		parsecnt = sscanf (line, "%u.%u.%u.%u:%u", &h1, &h2, &h3, &h4, &tmp_port);
+	}
 	snprintf (readbuf, count, "%u.%u.%u.%u", h1,h2,h3,h4);
 	
 	/* Set up the stuff for the listenfd */
